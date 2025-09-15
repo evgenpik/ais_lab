@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLogical;
 
 namespace ConsoleApp
 {
@@ -10,7 +11,8 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            //Logic logic = new Logic(); типа класс, который будет отвечать за логику
+            Logic logic = new Logic();
+
             while (true)
             {
                 Console.WriteLine("Выберите действие:\n" +
