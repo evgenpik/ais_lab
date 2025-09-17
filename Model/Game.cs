@@ -8,7 +8,7 @@ namespace Model
 {
     public class Game
     {
-        public Guid Id { get; }
+        public Guid Id { get; set; }
         public string Title { get; set; }
         public Genre GameGenre { get; set; }
         public string Developer { get; set; }
