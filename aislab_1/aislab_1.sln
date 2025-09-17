@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36511.14 d17.14
+VisualStudioVersion = 17.14.36511.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aislab_1", "aislab_1\aislab_1.csproj", "{D951894F-C413-4B8B-A16B-6EB89BED9957}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{1C8523E2-0A6B-48F5-A869-23886B96E5CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogical", "..\BusinessLogical\BusinessLogical.csproj", "{8BCC5713-10E3-4DFC-824F-F3F338E80B16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "..\Model\Model.csproj", "{8223FD3E-2030-4098-9BBF-0114ABA23720}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BCC5713-10E3-4DFC-824F-F3F338E80B16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BCC5713-10E3-4DFC-824F-F3F338E80B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BCC5713-10E3-4DFC-824F-F3F338E80B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BCC5713-10E3-4DFC-824F-F3F338E80B16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8223FD3E-2030-4098-9BBF-0114ABA23720}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8223FD3E-2030-4098-9BBF-0114ABA23720}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8223FD3E-2030-4098-9BBF-0114ABA23720}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8223FD3E-2030-4098-9BBF-0114ABA23720}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
