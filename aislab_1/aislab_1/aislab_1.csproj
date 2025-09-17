@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95805D11-B423-494D-A565-50044BA385BA}</ProjectGuid>
+    <ProjectGuid>{D951894F-C413-4B8B-A16B-6EB89BED9957}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WindowsForms</RootNamespace>
-    <AssemblyName>WindowsForms</AssemblyName>
+    <RootNamespace>aislab_1</RootNamespace>
+    <AssemblyName>aislab_1</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36511.14 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aislab_1", "aislab_1\aislab_1.csproj", "{D951894F-C413-4B8B-A16B-6EB89BED9957}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{1C8523E2-0A6B-48F5-A869-23886B96E5CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D951894F-C413-4B8B-A16B-6EB89BED9957}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D951894F-C413-4B8B-A16B-6EB89BED9957}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D951894F-C413-4B8B-A16B-6EB89BED9957}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D951894F-C413-4B8B-A16B-6EB89BED9957}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C8523E2-0A6B-48F5-A869-23886B96E5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB1675E1-A4FE-4F00-A403-8B64B0298736}
+	EndGlobalSection
+EndGlobal
