@@ -10,22 +10,11 @@ using System.Windows.Forms;
 
 namespace aislab_1
 {
-    public partial class Form1 : Form
+    public partial class FilterForm : Form
     {
-        public Form1()
+        public FilterForm()
         {
             InitializeComponent();
-            //
-        }
-
-        private void groupBox_GameProps_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
