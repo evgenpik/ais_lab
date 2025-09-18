@@ -26,7 +26,7 @@ namespace ConsoleApp
                 switch (Console.ReadLine())
                 {
                     case "1":
-
+                        Console.Clear();
                         string title = GetValidString("Введите название игры: ");
 
                         Genre genre = GetValidGenre("Введите жанр:");
@@ -47,45 +47,13 @@ namespace ConsoleApp
 
                         Console.WriteLine("\n--- Игра успешно добавлена! ---\n");
 
-                        //Console.WriteLine("Введите название игры:");
-                        //string title = Console.ReadLine();
-
-                        //Console.WriteLine("Введите жанр:");
-                        //string genreInput = Console.ReadLine(); //тоже можно перечислением сделать, но я не уверена
-                        //Enum.TryParse<Genre>(genreInput, true, out Genre genre );
-
-                        //Console.WriteLine("Введите разработчика:");
-                        //string developer = Console.ReadLine();
-
-                        //Console.WriteLine("Введите год выпуска:");
-                        //string releaseYearInput = Console.ReadLine();
-                        //int.TryParse(developer, out int releaseYear);
-
-
-                        //Console.WriteLine("Введите платформу:"); //тут как будто можно сделать перечисление с константами
-                        //string platform = Console.ReadLine();
-
-                        //Console.WriteLine("Введите рейтинг:"); //тут интовое значение можно
-                        //string ratingInput = Console.ReadLine();
-                        //int.TryParse(ratingInput, out int rating);
-
-                        //if (rating > 10)
-                        //{
-                        //    rating = 10;
-                        //}
-                        //else if (rating < 1)
-                        //{
-                        //    rating = 1;
-                        //}
-
-                        //logic.AddGame(title, genre, developer, releaseYear, platform, rating); //добавляем игру
-                        //Console.WriteLine("\n--- Игра успешно добавлена! ---\n");
+                        
 
                         break;
 
 
                     case "2":
-
+                        Console.Clear();
                         Console.WriteLine("\n ---Cписок ваших игр и их свойства---");
 
                         string allGamesInfo = logic.GetAll();
@@ -100,12 +68,7 @@ namespace ConsoleApp
                         }
 
 
-                        ///foreach (game in logic.Games)
-                        ///{
-                        ///Console.WriteLine(game.ID, game.Title)
-                        ///}
-                        ///string idForReading = Console.ReadLine();
-                        //Console.WriteLine(logic.ShowInfo(idForReading)); //тип метод, который выводит информацию о свойствах игры
+                        
 
                         Console.WriteLine("--------------------------------\n");
 
@@ -113,6 +76,7 @@ namespace ConsoleApp
 
 
                     case "3":
+                        Console.Clear();
                         Console.WriteLine(logic.GetGameListForSelection());
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
@@ -144,25 +108,15 @@ namespace ConsoleApp
 
                         break;
 
-                        ///foreach (game in logic.Games)
-                        ///{
-                        ///Console.WriteLine(game.ID, game.Title)
-                        ///}
-                        ///
-
-                        //string idForChanging = Console.ReadLine();
-                        //logic.ChangeGame(idForChanging) //надо подумать как это реализовать еще
+                        
                        
                     case "4":
-
-                        // Сначала показываем пользователю список игр, чтобы он мог выбрать ID
+                        Console.Clear();
                         Console.WriteLine(logic.GetGameListForSelection());
 
                         Console.Write("Введите ID игры, которую хотите удалить: ");
-                        // Пытаемся безопасно преобразовать введенный текст в Guid
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForDelete))
-                        {
-                            // Вызываем метод из логики и проверяем результат
+                        {                           
                             if (logic.DeleteGame(idForDelete))
                             {
                                 Console.WriteLine("\n--- Игра успешно удалена! ---\n");
@@ -177,16 +131,12 @@ namespace ConsoleApp
                             Console.WriteLine("\n--- Некорректный формат ID. ---\n");
                         }
 
-                        ///foreach (game in logic.Games)
-                        ///{
-                        ///Console.WriteLine(game.ID, game.Title)
-                        ///}
                         
                         
                         break;
 
                     case "5":
-
+                        Console.Clear();
                         Console.WriteLine("\n--- Игры, сгруппированные по жанрам ---");
                         string groupedResult = logic.GetGamesGroupedByGenre();
                         Console.WriteLine(groupedResult);
@@ -195,13 +145,14 @@ namespace ConsoleApp
                         break;
                         
                     case "6":
+                        Console.Clear();
                         Console.Write("Введите платформу для фильтрации (например, PC): ");
                         string platformFilter = Console.ReadLine();
 
-                        // Обновляем заголовок, убирая упоминание сортировки
+
                         Console.WriteLine($"\n--- Игры на платформе '{platformFilter}' ---");
 
-                        // Вызываем наш новый, переименованный метод
+
                         string filteredResult = logic.GetGamesByPlatform(platformFilter);
 
                         Console.WriteLine(filteredResult);

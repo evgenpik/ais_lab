@@ -11,9 +11,9 @@ namespace BusinessLogical
     {
         public List<Game> Games = new List<Game>();
 
-        // Создание сущности
+        
         /// <summary>
-        ///     
+        /// Метод для создания сущности
         /// </summary>
         /// <param name="title"></param>
         /// <param name="genre"></param>
@@ -37,7 +37,10 @@ namespace BusinessLogical
             Games.Add(game);
         }
 
-        // Чтение сущности
+        /// <summary>
+        /// Читает сущности
+        /// </summary>
+        /// <returns>Возвращает строку с данными об играх</returns>
         public string GetAll()
         {
             StringBuilder sb = new StringBuilder();
@@ -48,24 +51,12 @@ namespace BusinessLogical
                 sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
             }
             return sb.ToString();
-
-
-            // это можно будет сделать какой-нибудь вывод типа карточки игры (более читаемо что-ли)
-            //foreach (var game in Games)
-            //{
-            //    sb.AppendLine($"ID: {game.Id}");
-            //    sb.AppendLine($"Title: {game.Title}");
-            //    sb.AppendLine($"Genre: {game.GameGenre}");
-            //    sb.AppendLine($"Developer: {game.Developer}");
-            //    sb.AppendLine($"Release Year: {game.ReleaseYear}");
-            //    sb.AppendLine($"Platforms: {string.Join(", ", game.Platforms)}");
-            //    sb.AppendLine($"Rating: {game.Rating}/10");
-            //    sb.AppendLine(new string('-', 20));
-            //}
-            //return sb.ToString();
         }
 
-
+        /// <summary>
+        /// Метод для дальнейшего отбора игр
+        /// </summary>
+        /// <returns>Строка с ID и названием игры</returns>
         public string GetGameListForSelection()
         {
             if (Games.Count == 0)
@@ -85,6 +76,13 @@ namespace BusinessLogical
 
         }
 
+        /// <summary>
+        /// Метод для изменения данных об игре
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newTtile"></param>
+        /// <param name="newRating"></param>
+        /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
         public bool ChangeGame(Guid id, string newTtile, int newRating)
         {
             Game gameChange = Games.FirstOrDefault(g => g.Id == id);
@@ -101,39 +99,41 @@ namespace BusinessLogical
                 return false;
             }
         }
-
+        /// <summary>
+        /// Метод для удаления игры
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>True, если игра удалена. False, если что-то пошло не так</returns>
         public bool DeleteGame(Guid id)
         {
-            // Ищем игру в списке по ID. FirstOrDefault вернет null, если ничего не найдено.
             Game gameToDelete = Games.FirstOrDefault(g => g.Id == id);
 
             if (gameToDelete != null)
             {
                 Games.Remove(gameToDelete);
-                return true; // Удаление успешно
+                return true; 
             }
             else
             {
-                return false; // Игра с таким ID не найдена
+                return false; 
             }
 
         }
-
+        /// <summary>
+        /// Метод для группировки игр
+        /// </summary>
+        /// <returns>Строка с сгруппированными играми</returns>
         public string GetGamesGroupedByGenre()
         {
             if (Games.Count == 0) return "Нет игр для группировки.";
 
-            StringBuilder sb = new StringBuilder();
-
-            // Используем LINQ для группировки
+            StringBuilder sb = new StringBuilder();         
             var groupedGames = Games.GroupBy(game => game.GameGenre);
-
-            // Проходим по каждой группе
+           
             foreach (var group in groupedGames)
             {
-                sb.AppendLine($"\n--- Жанр: {group.Key} ---"); // group.Key - это значение, по которому группировали (сам жанр)
+                sb.AppendLine($"\n--- Жанр: {group.Key} ---"); 
 
-                // Проходим по всем играм внутри этой группы
                 foreach (var game in group)
                 {
                     sb.AppendLine($"    {game.Title} (Рейтинг: {game.Rating}/10)");
@@ -142,11 +142,14 @@ namespace BusinessLogical
             return sb.ToString();
         }
 
-
+        /// <summary>
+        /// Фильтр игры по платформе
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <returns></returns>
         public string GetGamesByPlatform(string platform)
         {
             var filteredGames = Games
-                // 1. Оставляем фильтрацию .Where() - она находит нужные игры
                 .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (filteredGames.Count == 0)
@@ -157,7 +160,6 @@ namespace BusinessLogical
             StringBuilder sb = new StringBuilder();
             foreach (var game in filteredGames)
             {
-                // Формат вывода оставляем тем же, он хороший
                 sb.AppendLine($"{game.Title} (Рейтинг: {game.Rating}/10)");
             }
             return sb.ToString();
