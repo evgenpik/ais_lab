@@ -14,7 +14,7 @@ namespace Model
         public string Developer { get; set; }
         public int ReleaseYear { get; set; }
 
-        public string[] Platforms { get; set; }
+        public string Platform { get; set; }
 
         public int Rating { get; set; }
 
