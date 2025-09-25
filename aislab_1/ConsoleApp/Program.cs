@@ -81,16 +81,20 @@ namespace ConsoleApp
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
                         {
-                            Console.WriteLine("Введите новое название: ");
-                            string newTitle = Console.ReadLine();
+                            string newTitle = GetValidString("Введите новое название: ");
 
-                            Console.Write("Введите новы рейтинг (1-10): ");
-                            int.TryParse(Console.ReadLine(), out int newRating);
+                            int newRating = GetValidInt("Введите новый рейтинг: ", 0, 10);
+
+                            string newPlatform = GetValidString("Введите новую платформу: ");
+
+                            string newDeveloper = GetValidString("Введите нового разработчика: ");
+
+                            Genre newGenre = GetValidGenre("Введите новый жанр: ");
 
                             if (newRating > 10) { newRating = 10; }
                             else if (newRating < 1) newRating = 1;
 
-                            if (logic.ChangeGame(idForChange, newTitle, newRating))
+                            if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatform, newDeveloper, newGenre))
                             {
                                 Console.WriteLine("\n--- Игра успешно изменена! ---\n");
                             }

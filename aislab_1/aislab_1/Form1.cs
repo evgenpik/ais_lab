@@ -136,7 +136,10 @@ namespace aislab_1
                 {
                     string newTitle = textBox_Title.Text;
                     int newRating = (int)numericUpDown_Rating.Value;
-                    logic.ChangeGame(selectedGame.Id, newTitle, newRating);
+                    string newPlatform = comboBox_Platform.Text;
+                    string newDeveloper = textBox_Developer.Text;
+                    Genre newGenre = (Genre)comboBox_Genre.SelectedItem;
+                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatform, newDeveloper, newGenre);
                     UpdateGamesGrid();
                 }
             }

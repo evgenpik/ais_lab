@@ -83,7 +83,7 @@ namespace BusinessLogical
         /// <param name="newTtile"></param>
         /// <param name="newRating"></param>
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
-        public bool ChangeGame(Guid id, string newTtile, int newRating)
+        public bool ChangeGame(Guid id, string newTtile, int newRating, string newPlatform, string newDeveloper, Genre newGenre)
         {
             Game gameChange = Games.FirstOrDefault(g => g.Id == id);
 
@@ -91,7 +91,9 @@ namespace BusinessLogical
             {
                 gameChange.Rating = newRating;
                 gameChange.Title = newTtile;
-
+                gameChange.Developer = newDeveloper;
+                gameChange.Platform = newPlatform;
+                gameChange.GameGenre = newGenre;
                 return true;
             }
             else
