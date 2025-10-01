@@ -9,9 +9,13 @@ namespace BusinessLogical
 {
     public class Logic
     {
-        public List<Game> Games = new List<Game>();
+        //public List<Game> Games = new List<Game>();
+        private readonly IGameRepository _repository;
+        public Logic(IGameRepository repository)
+        {
+            _repository = repository;
+        }
 
-        
         /// <summary>
         /// Метод для создания сущности
         /// </summary>
@@ -34,7 +38,7 @@ namespace BusinessLogical
                 Rating = rating
             };
 
-            Games.Add(game);
+            _repository.Add(game);
         }
 
         /// <summary>
@@ -43,10 +47,11 @@ namespace BusinessLogical
         /// <returns>Возвращает строку с данными об играх</returns>
         public string GetAll()
         {
-            StringBuilder sb = new StringBuilder();
+            var games = _repository.GetAll();
+            if (games.Count == 0) return "У вас нет добавленных игр";
 
-            //как в примере сделал
-            foreach (Game game in Games)
+            var sb = new StringBuilder();
+            foreach (var game in games)
             {
                 sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
             }
@@ -59,14 +64,12 @@ namespace BusinessLogical
         /// <returns>Строка с ID и названием игры</returns>
         public string GetGameListForSelection()
         {
-            if (Games.Count == 0)
-            {
-                return "У вас нет добавленных игр.";
-            }
+            var games = _repository.GetAll();
+            if (games.Count == 0) return "У вас пока нет добавленных игр";
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Список игр:");
 
-            foreach (var game in Games)
+            foreach (var game in games)
             {
                 sb.AppendLine($"ID: {game.Id}| Название: {game.Title}");
 
@@ -83,7 +86,7 @@ namespace BusinessLogical
         /// <param name="newTtile"></param>
         /// <param name="newRating"></param>
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
-        public bool ChangeGame(Guid id, string newTtile, int newRating, string newPlatform, string newDeveloper, Genre newGenre)
+        /*public bool ChangeGame(Guid id, string newTtile, int newRating, string newPlatform, string newDeveloper, Genre newGenre)
         {
             Game gameChange = Games.FirstOrDefault(g => g.Id == id);
 
@@ -120,13 +123,19 @@ namespace BusinessLogical
                 return false; 
             }
 
-        }
+        }*/
+
+        public bool ChangeGame(Game updatedGame) => _repository.Update(updatedGame);
+        public bool DeleteGame(Guid id) => _repository.Delete(id);
+        public List<Game> GetGames() => _repository.GetAll();
+
         /// <summary>
         /// Метод для группировки игр
         /// </summary>
         /// <returns>Строка с сгруппированными играми</returns>
         public string GetGamesGroupedByGenre()
         {
+            var Games = _repository.GetAll();
             if (Games.Count == 0) return "Нет игр для группировки.";
 
             StringBuilder sb = new StringBuilder();         
@@ -151,6 +160,7 @@ namespace BusinessLogical
         /// <returns></returns>
         public string GetGamesByPlatform(string platform)
         {
+            var Games = _repository.GetAll();
             var filteredGames = Games
                 .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
 

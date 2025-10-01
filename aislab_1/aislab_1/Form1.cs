@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using BusinessLogical;
 using Model;
-
 
 namespace aislab_1
 {
     public partial class MainForm : Form
     {
-        private readonly Logic logic = new Logic();
-        private DataGridViewRow selectedRow = null; //выборная ячейка таблицы
-        private BindingSource gamesBinding = new BindingSource(); //прослойка чтобы спокойно работать с таблицей
+        private readonly Logic logic;
+        private DataGridViewRow selectedRow = null; // выбранная строка таблицы
+        private BindingSource gamesBinding = new BindingSource(); // прослойка между List<Game> и DataGridView
         private List<Game> allGames;
 
         public MainForm()
         {
             InitializeComponent();
+            logic = new Logic(new InMemoryGameRepository());
             this.Load += Form1_Load;
         }
 
@@ -33,10 +29,8 @@ namespace aislab_1
             UpdateGamesGrid();
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
         }
+
         #region Вспомогательные методы
-        /// <summary>
-        /// Метод, задающий поля для ввода данных
-        /// </summary>
         private void SetupInputControls()
         {
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
@@ -48,9 +42,6 @@ namespace aislab_1
             numericUpDown_ReleaseYear.Value = DateTime.Now.Year;
         }
 
-        /// <summary>
-        /// Метод, задающий поля таблицы DatagridView
-        /// </summary>
         private void SetupDataGridView()
         {
             dataGridView1.AutoGenerateColumns = false;
@@ -71,19 +62,17 @@ namespace aislab_1
         }
 
         /// <summary>
-        /// Метод, обновляющий поля таблицы
+        /// Обновляет список игр в таблице
         /// </summary>
         private void UpdateGamesGrid()
         {
-            allGames = logic.Games.ToList(); // сохраняем полный список
+            // раньше было logic.Games.ToList(), теперь берём через метод
+            allGames = logic.GetGames();
             gamesBinding.DataSource = allGames;
             dataGridView1.ClearSelection();
             selectedRow = null;
         }
 
-        /// <summary>
-        /// Метод, сбрасывающий поля ввода
-        /// </summary>
         private void ClearInputFields()
         {
             textBox_Title.Clear();
@@ -98,11 +87,6 @@ namespace aislab_1
         #endregion
 
         #region Обработчики событий
-        /// <summary>
-        /// Обработчик кноппки "Добавить"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Button_Add_Click(object sender, EventArgs e)
         {
             string title = textBox_Title.Text;
@@ -122,11 +106,7 @@ namespace aislab_1
             UpdateGamesGrid();
             ClearInputFields();
         }
-        /// <summary>
-        /// Обработчик кнопки "Изменить"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void Button_Change_Click(object sender, EventArgs e)
         {
             if (selectedRow != null)
@@ -134,12 +114,14 @@ namespace aislab_1
                 Game selectedGame = selectedRow.DataBoundItem as Game;
                 if (selectedGame != null)
                 {
-                    string newTitle = textBox_Title.Text;
-                    int newRating = (int)numericUpDown_Rating.Value;
-                    string newPlatform = comboBox_Platform.Text;
-                    string newDeveloper = textBox_Developer.Text;
-                    Genre newGenre = (Genre)comboBox_Genre.SelectedItem;
-                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatform, newDeveloper, newGenre);
+                    selectedGame.Title = textBox_Title.Text;
+                    selectedGame.Developer = textBox_Developer.Text;
+                    selectedGame.Platform = comboBox_Platform.Text;
+                    selectedGame.ReleaseYear = (int)numericUpDown_ReleaseYear.Value;
+                    selectedGame.GameGenre = (Genre)comboBox_Genre.SelectedItem;
+                    selectedGame.Rating = (int)numericUpDown_Rating.Value;
+
+                    logic.ChangeGame(selectedGame); // передаём обновлённый объект
                     UpdateGamesGrid();
                 }
             }
@@ -149,11 +131,6 @@ namespace aislab_1
             }
         }
 
-        /// <summary>
-        /// Обработчик кнопки "Удалить"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Button_Delete_Click(object sender, EventArgs e)
         {
             if (selectedRow != null)
@@ -177,18 +154,10 @@ namespace aislab_1
             }
             else
             {
-                MessageBox.Show(
-                    "Пожалуйста, выберите игру для удаления.",
-                    "Информация",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                MessageBox.Show("Пожалуйста, выберите игру для удаления.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        /// <summary>
-        /// Обработчик кнопки "Фильтровать"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void Button_Filter_Click(object sender, EventArgs e)
         {
             string platform = comboBox_Platform.SelectedItem.ToString();
@@ -198,38 +167,22 @@ namespace aislab_1
             dataGridView1.ClearSelection();
             selectedRow = null;
         }
-        /// <summary>
-        /// Обработчик кнопки "Группировать"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void Button_Group_Click(object sender, EventArgs e)
         {
             var sortedGames = allGames.OrderBy(g => g.GameGenre).ThenBy(g => g.Title).ToList();
-
-            // присваиваю биндингу новую отсортированную коллекцию
             gamesBinding.DataSource = sortedGames;
-
-            // сбрасываю выделение
             dataGridView1.ClearSelection();
             selectedRow = null;
         }
-        /// <summary>
-        /// Обработчик "Сбросить"
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void Button_Reset_Click(object sender, EventArgs e)
         {
             gamesBinding.DataSource = allGames;
             dataGridView1.ClearSelection();
             selectedRow = null;
         }
-        /// <summary>
-        /// Метод для смены строки
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+
         private void DataGridView1_SelectionChanged(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count > 0)
@@ -253,9 +206,6 @@ namespace aislab_1
             }
         }
         #endregion
-
-        
     }
 }
-
 

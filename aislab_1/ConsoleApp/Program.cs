@@ -12,7 +12,8 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            Logic logic = new Logic();
+            var logic = new Logic(new InMemoryGameRepository());
+
 
             while (true)
             {
@@ -93,8 +94,16 @@ namespace ConsoleApp
 
                             if (newRating > 10) { newRating = 10; }
                             else if (newRating < 1) newRating = 1;
-
-                            if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatform, newDeveloper, newGenre))
+                            Game updatedGame = new Game()
+                            {
+                                Id = idForChange,
+                                Title = newTitle,
+                                Rating = newRating,
+                                Platform = newPlatform,
+                                Developer = newDeveloper,
+                                GameGenre = newGenre
+                            };
+                            if (logic.ChangeGame(updatedGame))
                             {
                                 Console.WriteLine("\n--- Игра успешно изменена! ---\n");
                             }
