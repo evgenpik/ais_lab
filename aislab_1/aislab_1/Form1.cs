@@ -1,10 +1,12 @@
-﻿using System;
+﻿using BusinessLogical;
+using Model;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using BusinessLogical;
-using Model;
 
 namespace aislab_1
 {
@@ -14,11 +16,12 @@ namespace aislab_1
         private DataGridViewRow selectedRow = null; // выбранная строка таблицы
         private BindingSource gamesBinding = new BindingSource(); // прослойка между List<Game> и DataGridView
         private List<Game> allGames;
+        private FileSystemWatcher watcher;
 
         public MainForm()
         {
             InitializeComponent();
-            logic = new Logic(new InMemoryGameRepository());
+            logic = new Logic(new JsonGameRepository());
             this.Load += Form1_Load;
         }
 
@@ -28,8 +31,32 @@ namespace aislab_1
             SetupDataGridView();
             UpdateGamesGrid();
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
+            SetupFileWatcher();
         }
+        private void SetupFileWatcher()
+        {
+            watcher = new FileSystemWatcher
+            {
+                Path = AppDomain.CurrentDomain.BaseDirectory, // папка, где лежит exe и games.json
+                Filter = "games.json",                       // какой файл отслеживать
+                NotifyFilter = NotifyFilters.LastWrite       // отслеживаем изменения содержимого
+            };
 
+            watcher.Changed += OnGamesFileChanged;
+            watcher.EnableRaisingEvents = true;
+        }
+        private void OnGamesFileChanged(object sender, FileSystemEventArgs e)
+        {
+            // событие приходит из фонового потока, а WinForms требует основной
+            if (InvokeRequired)
+            {
+                BeginInvoke(new MethodInvoker(UpdateGamesGrid));
+            }
+            else
+            {
+                UpdateGamesGrid();
+            }
+        }
         #region Вспомогательные методы
         private void SetupInputControls()
         {
@@ -205,7 +232,13 @@ namespace aislab_1
                 ClearInputFields();
             }
         }
+        private void button_Update_Click(object sender, EventArgs e)
+        {
+            UpdateGamesGrid();
+        }
         #endregion
+
+
     }
 }
 

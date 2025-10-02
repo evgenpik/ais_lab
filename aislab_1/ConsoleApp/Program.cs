@@ -12,7 +12,7 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            var logic = new Logic(new InMemoryGameRepository());
+            var logic = new Logic(new JsonGameRepository());
 
 
             while (true)
