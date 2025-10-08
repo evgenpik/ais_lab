@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-    public class Game
+    public class Game: IDomainObject
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
