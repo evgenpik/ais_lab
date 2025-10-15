@@ -67,6 +67,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\aislab_1\DataAccessLayer\DataAccessLayer.csproj">
+      <Project>{707ef7ad-f6d3-4178-b9a6-4f7f408fe5f4}</Project>
+      <Name>DataAccessLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{8223fd3e-2030-4098-9bbf-0114aba23720}</Project>
       <Name>Model</Name>

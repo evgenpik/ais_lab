@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Model
 {
-    internal interface IDomainObject
+    public interface IDomainObject
     {
         Guid Id { get; set; }
     }

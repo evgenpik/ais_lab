@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLogical;
 using Model;
+using System.Configuration;
+using DataAccessLayer;
 
 namespace ConsoleApp
 {
@@ -12,7 +14,16 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            Logic logic = new Logic();
+            var repository = new DapperGameRepository();
+            var logic = new Logic(repository);
+
+            //string connectionString = ConfigurationManager.ConnectionStrings["GamesDatabase"].ConnectionString;
+
+            //// 2. Создаем репозиторий, ПЕРЕДАВАЯ ему эту строку
+            //var repository = new DapperGameRepository(connectionString);
+
+            //// 3. Внедряем репозиторий в Logic
+            //var logic = new Logic(repository);
 
             while (true)
             {
@@ -42,7 +53,8 @@ namespace ConsoleApp
                         
                         int rating = GetValidInt("Введите ваш рейтинг (1-10): ", 1, 10);
 
-                        
+
+                   
                         logic.AddGame(title, genre, developer, releaseYear, platform, rating);
 
                         Console.WriteLine("\n--- Игра успешно добавлена! ---\n");
@@ -81,6 +93,7 @@ namespace ConsoleApp
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
                         {
+
                             string newTitle = GetValidString("Введите новое название: ");
 
                             int newRating = GetValidInt("Введите новый рейтинг: ", 0, 10);
@@ -91,8 +104,8 @@ namespace ConsoleApp
 
                             Genre newGenre = GetValidGenre("Введите новый жанр: ");
 
-                            if (newRating > 10) { newRating = 10; }
-                            else if (newRating < 1) newRating = 1;
+                            //if (newRating > 10) { newRating = 10; }
+                            //else if (newRating < 1) newRating = 1;
 
                             if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatform, newDeveloper, newGenre))
                             {
@@ -103,6 +116,7 @@ namespace ConsoleApp
                             {
                                 Console.WriteLine("\n--- Игра с таким ID не найдена. ---\n");
                             }
+                            
 
                         }
                         else
