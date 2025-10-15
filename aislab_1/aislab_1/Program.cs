@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DataAccessLayer;
+using Model;
+using BusinessLogical;
 
 namespace aislab_1
 {
@@ -16,7 +19,11 @@ namespace aislab_1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            var context = new AppDbContext();
+            var repository = new EntityRepository<Game>(context);
+            var logic = new Logic(repository);
+            Application.Run(new MainForm(logic));
         }
     }
 }

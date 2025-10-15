@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLogical;
 using Model;
+using DataAccessLayer;
 
 namespace ConsoleApp
 {
@@ -12,7 +13,10 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            Logic logic = new Logic();
+            var context = new AppDbContext();
+            var repository = new EntityRepository<Game>(context);
+
+            Logic logic = new Logic(repository);
 
             while (true)
             {

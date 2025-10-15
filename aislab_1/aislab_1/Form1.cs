@@ -15,15 +15,16 @@ namespace aislab_1
 {
     public partial class MainForm : Form
     {
-        private readonly Logic logic = new Logic();
+        private readonly Logic logic;
         private DataGridViewRow selectedRow = null; //выборная ячейка таблицы
         private BindingSource gamesBinding = new BindingSource(); //прослойка чтобы спокойно работать с таблицей
         private List<Game> allGames;
 
-        public MainForm()
+        public MainForm(Logic logic)
         {
             InitializeComponent();
             this.Load += Form1_Load;
+            this.logic = logic;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -75,8 +76,14 @@ namespace aislab_1
         /// </summary>
         private void UpdateGamesGrid()
         {
-            allGames = logic.Games.ToList(); // сохраняем полный список
+            // 1️⃣ Получаем список игр из базы через бизнес-логику
+            allGames = logic.GetAllGames();
+
+            // 2️⃣ Обновляем источник данных привязки
             gamesBinding.DataSource = allGames;
+            dataGridView1.DataSource = gamesBinding;
+
+            // 3️⃣ Очищаем выбор
             dataGridView1.ClearSelection();
             selectedRow = null;
         }
