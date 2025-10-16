@@ -1,5 +1,6 @@
 ﻿using BusinessLogical;
 using DataAccessLayer;
+using Model;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,19 +21,11 @@ namespace aislab_1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var repository = new DapperGameRepository();
+            //var repository = new DapperGameRepository();
+            var repository = new EntityRepository<Game>();
             var logic = new Logic(repository);
             Application.Run(new MainForm(logic));
 
-            //string connectionString = ConfigurationManager.ConnectionStrings
-
-            //var repository = new DapperGameRepository(connectionString);
-
-
-            //var logic = new Logic(repository);
-
-
-            //Application.Run(new MainForm(logic));
         }
     }
 }

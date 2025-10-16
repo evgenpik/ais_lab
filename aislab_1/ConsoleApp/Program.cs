@@ -14,16 +14,11 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            var repository = new DapperGameRepository();
+            //var repository = new DapperGameRepository();           
+            var repository = new EntityRepository<Game>();
             var logic = new Logic(repository);
 
-            //string connectionString = ConfigurationManager.ConnectionStrings["GamesDatabase"].ConnectionString;
-
-            //// 2. Создаем репозиторий, ПЕРЕДАВАЯ ему эту строку
-            //var repository = new DapperGameRepository(connectionString);
-
-            //// 3. Внедряем репозиторий в Logic
-            //var logic = new Logic(repository);
+            
 
             while (true)
             {
