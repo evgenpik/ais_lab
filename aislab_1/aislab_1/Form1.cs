@@ -236,6 +236,7 @@ namespace aislab_1
             gamesBinding.DataSource = allGames;
             dataGridView1.ClearSelection();
             selectedRow = null;
+            
         }
         /// <summary>
         /// Метод для смены строки
@@ -264,9 +265,13 @@ namespace aislab_1
                 ClearInputFields();
             }
         }
+
         #endregion
 
-        
+        private void buttonUpdate_Click(object sender, EventArgs e)
+        {
+            UpdateGamesGrid();
+        }
     }
 }
 

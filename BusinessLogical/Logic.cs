@@ -10,13 +10,13 @@ namespace BusinessLogical
 {
     public class Logic 
     {
-        private readonly IRepository<Game> _repository;
+        private readonly IRepository<Game> repository;
 
         
-        public Logic(IRepository<Game> repository)
+        public Logic(IRepository<Game> repo)
         {
             
-            _repository = repository;
+            repository = repo;
         }
 
 
@@ -42,7 +42,7 @@ namespace BusinessLogical
                 Rating = rating
             };
 
-            _repository.Add(game);
+            repository.Add(game);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace BusinessLogical
         {
             StringBuilder sb = new StringBuilder();
 
-            var allGames = _repository.ReadAll();
+            var allGames = repository.ReadAll();
 
             foreach (Game game in allGames)
             {
@@ -68,7 +68,7 @@ namespace BusinessLogical
         public List<Game> GetAllGames()
         {
             // Просим у репозитория все игры и превращаем результат в List<Game>.
-            return _repository.ReadAll().ToList();
+            return repository.ReadAll().ToList();
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace BusinessLogical
         /// <returns>Строка с ID и названием игры</returns>
         public string GetGameListForSelection()
         {
-            var allGames = _repository.ReadAll();
+            var allGames = repository.ReadAll();
 
             if (!allGames.Any())
             {
@@ -105,7 +105,7 @@ namespace BusinessLogical
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
         public bool ChangeGame(Guid id, string newTtile, int newRating, string newPlatform, string newDeveloper, Genre newGenre)
         {
-            Game gameChange = _repository.ReadById(id);
+            Game gameChange = repository.ReadById(id);
 
             if (gameChange != null)
             {
@@ -114,7 +114,7 @@ namespace BusinessLogical
                 gameChange.Developer = newDeveloper;
                 gameChange.Platform = newPlatform;
                 gameChange.GameGenre = newGenre;
-                _repository.Update(gameChange);
+                repository.Update(gameChange);
                 return true;
             }
             else
@@ -129,7 +129,7 @@ namespace BusinessLogical
         /// <returns>True, если игра удалена. False, если что-то пошло не так</returns>
         public bool DeleteGame(Guid id)
         {
-            _repository.Delete(id);
+            repository.Delete(id);
             return true;
 
 
@@ -151,7 +151,7 @@ namespace BusinessLogical
         /// <returns>Строка с сгруппированными играми</returns>
         public string GetGamesGroupedByGenre()
         {
-            var allGames = _repository.ReadAll();
+            var allGames = repository.ReadAll();
 
             if (!allGames.Any()) return "Нет игр для группировки.";
 
@@ -177,7 +177,7 @@ namespace BusinessLogical
         /// <returns></returns>
         public string GetGamesByPlatform(string platform)
         {
-            var filteredGames = _repository.ReadAll()
+            var filteredGames = repository.ReadAll()
                 .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (filteredGames.Count == 0)

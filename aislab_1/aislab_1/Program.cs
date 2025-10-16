@@ -24,8 +24,7 @@ namespace aislab_1
             var logic = new Logic(repository);
             Application.Run(new MainForm(logic));
 
-            //string connectionString = ConfigurationManager.ConnectionStrings["GamesDatabase"].ConnectionString;
-
+            //string connectionString = ConfigurationManager.ConnectionStrings
 
             //var repository = new DapperGameRepository(connectionString);
 
