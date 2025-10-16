@@ -48,6 +48,7 @@
             this.button_Filter = new System.Windows.Forms.Button();
             this.button_Group = new System.Windows.Forms.Button();
             this.Button_Reset = new System.Windows.Forms.Button();
+            this.buttonUpdate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.groupBox_GameProps.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Rating)).BeginInit();
@@ -244,7 +245,7 @@
             // 
             // button_Group
             // 
-            this.button_Group.Location = new System.Drawing.Point(619, 409);
+            this.button_Group.Location = new System.Drawing.Point(566, 409);
             this.button_Group.Name = "button_Group";
             this.button_Group.Size = new System.Drawing.Size(88, 23);
             this.button_Group.TabIndex = 6;
@@ -254,7 +255,7 @@
             // 
             // Button_Reset
             // 
-            this.Button_Reset.Location = new System.Drawing.Point(619, 438);
+            this.Button_Reset.Location = new System.Drawing.Point(667, 409);
             this.Button_Reset.Name = "Button_Reset";
             this.Button_Reset.Size = new System.Drawing.Size(88, 23);
             this.Button_Reset.TabIndex = 7;
@@ -262,11 +263,22 @@
             this.Button_Reset.UseVisualStyleBackColor = true;
             this.Button_Reset.Click += new System.EventHandler(this.Button_Reset_Click);
             // 
+            // buttonUpdate
+            // 
+            this.buttonUpdate.Location = new System.Drawing.Point(626, 437);
+            this.buttonUpdate.Name = "buttonUpdate";
+            this.buttonUpdate.Size = new System.Drawing.Size(75, 23);
+            this.buttonUpdate.TabIndex = 8;
+            this.buttonUpdate.Text = "Обновить";
+            this.buttonUpdate.UseVisualStyleBackColor = true;
+            this.buttonUpdate.Click += new System.EventHandler(this.buttonUpdate_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(851, 472);
+            this.Controls.Add(this.buttonUpdate);
             this.Controls.Add(this.Button_Reset);
             this.Controls.Add(this.button_Group);
             this.Controls.Add(this.button_Filter);
@@ -311,6 +323,7 @@
         private System.Windows.Forms.Button button_Filter;
         private System.Windows.Forms.Button button_Group;
         private System.Windows.Forms.Button Button_Reset;
+        private System.Windows.Forms.Button buttonUpdate;
     }
 }
 
