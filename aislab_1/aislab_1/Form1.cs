@@ -9,20 +9,23 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BusinessLogical;
 using Model;
+using System.Configuration;
+using DataAccessLayer;
 
 
 namespace aislab_1
 {
     public partial class MainForm : Form
     {
-        private readonly Logic logic = new Logic();
+        private readonly Logic logic;
         private DataGridViewRow selectedRow = null; //выборная ячейка таблицы
         private BindingSource gamesBinding = new BindingSource(); //прослойка чтобы спокойно работать с таблицей
         private List<Game> allGames;
 
-        public MainForm()
+        public MainForm(Logic logic)
         {
             InitializeComponent();
+            this.logic = logic;
             this.Load += Form1_Load;
         }
 
@@ -75,10 +78,19 @@ namespace aislab_1
         /// </summary>
         private void UpdateGamesGrid()
         {
-            allGames = logic.Games.ToList(); // сохраняем полный список
-            gamesBinding.DataSource = allGames;
-            dataGridView1.ClearSelection();
+
+            allGames = logic.GetAllGames();
+            gamesBinding.DataSource = allGames; 
+            if (dataGridView1.Rows.Count > 0)
+            {
+                dataGridView1.ClearSelection();
+            }
             selectedRow = null;
+
+            //allGames = logic.Games.ToList(); // сохраняем полный список
+            //gamesBinding.DataSource = allGames;
+            //dataGridView1.ClearSelection();
+            //selectedRow = null;
         }
 
         /// <summary>
@@ -224,6 +236,7 @@ namespace aislab_1
             gamesBinding.DataSource = allGames;
             dataGridView1.ClearSelection();
             selectedRow = null;
+            
         }
         /// <summary>
         /// Метод для смены строки
@@ -252,9 +265,15 @@ namespace aislab_1
                 ClearInputFields();
             }
         }
+
         #endregion
 
-        
+        private void buttonUpdate_Click(object sender, EventArgs e)
+        {
+            UpdateGamesGrid();
+        }
+
+       
     }
 }
 

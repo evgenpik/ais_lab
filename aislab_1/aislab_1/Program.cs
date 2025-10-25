@@ -1,5 +1,9 @@
-﻿using System;
+﻿using BusinessLogical;
+using DataAccessLayer;
+using Model;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,7 +20,12 @@ namespace aislab_1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            //var repository = new DapperGameRepository();
+            var repository = new EntityRepository<Game>();
+            var logic = new Logic(repository);
+            Application.Run(new MainForm(logic));
+
         }
     }
 }

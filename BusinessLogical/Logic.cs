@@ -4,14 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Model;
+using DataAccessLayer;
 
 namespace BusinessLogical
 {
-    public class Logic
+    public class Logic 
     {
-        public List<Game> Games = new List<Game>();
+        private readonly IRepository<Game> repository;
 
         
+        public Logic(IRepository<Game> repo)
+        {
+            
+            repository = repo;
+        }
+
+
         /// <summary>
         /// Метод для создания сущности
         /// </summary>
@@ -34,7 +42,7 @@ namespace BusinessLogical
                 Rating = rating
             };
 
-            Games.Add(game);
+            repository.Add(game);
         }
 
         /// <summary>
@@ -45,12 +53,22 @@ namespace BusinessLogical
         {
             StringBuilder sb = new StringBuilder();
 
-            //как в примере сделал
-            foreach (Game game in Games)
+            var allGames = repository.ReadAll();
+
+            foreach (Game game in allGames)
             {
                 sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Возвращает "сырой" список всех игр для использования в слое Представления (например, WinForms)
+        /// </summary>
+        public List<Game> GetAllGames()
+        {
+            // Просим у репозитория все игры и превращаем результат в List<Game>.
+            return repository.ReadAll().ToList();
         }
 
         /// <summary>
@@ -59,14 +77,16 @@ namespace BusinessLogical
         /// <returns>Строка с ID и названием игры</returns>
         public string GetGameListForSelection()
         {
-            if (Games.Count == 0)
+            var allGames = repository.ReadAll();
+
+            if (!allGames.Any())
             {
                 return "У вас нет добавленных игр.";
             }
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Список игр:");
 
-            foreach (var game in Games)
+            foreach (var game in allGames)
             {
                 sb.AppendLine($"ID: {game.Id}| Название: {game.Title}");
 
@@ -85,7 +105,7 @@ namespace BusinessLogical
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
         public bool ChangeGame(Guid id, string newTtile, int newRating, string newPlatform, string newDeveloper, Genre newGenre)
         {
-            Game gameChange = Games.FirstOrDefault(g => g.Id == id);
+            Game gameChange = repository.ReadById(id);
 
             if (gameChange != null)
             {
@@ -94,6 +114,7 @@ namespace BusinessLogical
                 gameChange.Developer = newDeveloper;
                 gameChange.Platform = newPlatform;
                 gameChange.GameGenre = newGenre;
+                repository.Update(gameChange);
                 return true;
             }
             else
@@ -108,17 +129,20 @@ namespace BusinessLogical
         /// <returns>True, если игра удалена. False, если что-то пошло не так</returns>
         public bool DeleteGame(Guid id)
         {
-            Game gameToDelete = Games.FirstOrDefault(g => g.Id == id);
+            repository.Delete(id);
+            return true;
 
-            if (gameToDelete != null)
-            {
-                Games.Remove(gameToDelete);
-                return true; 
-            }
-            else
-            {
-                return false; 
-            }
+
+            //Game gameToDelete = Games.FirstOrDefault(g => g.Id == id);
+            //if (gameToDelete != null)
+            //{
+            //    Games.Remove(gameToDelete);
+            //    return true; 
+            //}
+            //else
+            //{
+            //    return false; 
+            //}
 
         }
         /// <summary>
@@ -127,10 +151,12 @@ namespace BusinessLogical
         /// <returns>Строка с сгруппированными играми</returns>
         public string GetGamesGroupedByGenre()
         {
-            if (Games.Count == 0) return "Нет игр для группировки.";
+            var allGames = repository.ReadAll();
+
+            if (!allGames.Any()) return "Нет игр для группировки.";
 
             StringBuilder sb = new StringBuilder();         
-            var groupedGames = Games.GroupBy(game => game.GameGenre);
+            var groupedGames = allGames.GroupBy(game => game.GameGenre);
            
             foreach (var group in groupedGames)
             {
@@ -151,7 +177,7 @@ namespace BusinessLogical
         /// <returns></returns>
         public string GetGamesByPlatform(string platform)
         {
-            var filteredGames = Games
+            var filteredGames = repository.ReadAll()
                 .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (filteredGames.Count == 0)
