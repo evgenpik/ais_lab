@@ -1,0 +1,58 @@
+﻿-- Миграция №1: Добавление таблицы Platforms и обновление Games
+
+-- 1. Создаем таблицу Platforms, только если ее еще не существует.
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Platforms]') AND type in (N'U'))
+BEGIN
+    CREATE TABLE dbo.Platforms (
+        Id   int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        Name nvarchar(100)     NOT NULL
+    );
+    PRINT 'Таблица Platforms создана.';
+END
+GO
+
+-- 2. Заполняем Platforms, только если она пустая.
+IF NOT EXISTS (SELECT 1 FROM dbo.Platforms)
+BEGIN
+    INSERT INTO Platforms (Name) VALUES ('PC');
+    INSERT INTO Platforms (Name) VALUES ('PlayStation 5');
+    INSERT INTO Platforms (Name) VALUES ('Xbox Series X');
+    INSERT INTO Platforms (Name) VALUES ('Nintendo Switch');
+    INSERT INTO Platforms (Name) VALUES ('Other');
+    PRINT 'Таблица Platforms заполнена данными.';
+END
+GO
+
+-- 3. Модифицируем таблицу Games
+-- Удаляем старую колонку Platform, только если она существует.
+IF COL_LENGTH('dbo.Games', 'Platform') IS NOT NULL
+BEGIN
+    ALTER TABLE Games DROP COLUMN Platform;
+    PRINT 'Колонка Platform удалена из таблицы Games.';
+END
+GO
+
+-- Добавляем новую колонку PlatformId, только если ее еще нет.
+IF COL_LENGTH('dbo.Games', 'PlatformId') IS NULL
+BEGIN
+    -- Сначала добавляем ее как NULL, чтобы не было ошибки на непустой таблице
+    ALTER TABLE Games ADD PlatformId int NULL;
+    PRINT 'Колонка PlatformId добавлена в таблицу Games.';
+    -- Здесь можно было бы написать UPDATE, чтобы заполнить ее значениями по умолчанию
+    -- А затем сделать ее NOT NULL, но для учебного проекта это можно опустить.
+    -- Просто сделаем ее сразу NOT NULL, предполагая, что таблица Games будет очищена.
+    -- ALTER TABLE Games ALTER COLUMN PlatformId int NOT NULL;
+END
+GO
+
+-- Создаем внешний ключ, только если его еще нет.
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Games_Platforms')
+BEGIN
+    -- Этот запрос может не сработать, если в Games есть записи с PlatformId = NULL
+    -- Лучше сначала очистить Games
+    -- DELETE FROM Games; 
+    ALTER TABLE Games ADD CONSTRAINT FK_Games_Platforms 
+    FOREIGN KEY (PlatformId) REFERENCES Platforms(Id);
+    PRINT 'Внешний ключ FK_Games_Platforms создан.';
+END
+GO

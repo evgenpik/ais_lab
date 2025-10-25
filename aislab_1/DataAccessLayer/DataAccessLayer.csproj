@@ -107,6 +107,7 @@
     <Content Include="GamesDatabase_log.ldf">
       <DependentUpon>GamesDatabase.mdf</DependentUpon>
     </Content>
+    <Content Include="Migrations\01_add_platforms_table.sql.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
