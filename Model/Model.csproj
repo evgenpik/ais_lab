@@ -66,6 +66,7 @@
     <Compile Include="Genre.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="IDomainObject.cs" />
+    <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
