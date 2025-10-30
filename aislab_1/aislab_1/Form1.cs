@@ -80,30 +80,31 @@ namespace aislab_1
         /// <summary>
         /// Метод, обновляющий поля таблицы
         /// </summary>
-        private void UpdateGamesGrid()
+            private void UpdateGamesGrid()
         {
+            allGames = logic.GetAllGames();
+            var platforms = (List<Platform>)comboBox_Platform.DataSource; // используем уже загруженный список
 
-            allGames = logic.GetAllGames().ToList();
             var displayGames = allGames.Select(g => new
             {
                 g.Title,
                 g.Developer,
                 Genre = g.GameGenre.ToString(),
-                Platform = g.Platform?.Name ?? "—",  // если платформа не загружена, ставим дефис
+                Platform = platforms.FirstOrDefault(p => p.Id == g.PlatformId)?.Name ?? "—",
                 g.ReleaseYear,
                 g.Rating
             }).ToList();
+
             gamesBinding.DataSource = displayGames;
             dataGridView1.DataSource = gamesBinding;
 
             if (dataGridView1.Rows.Count > 0)
-            {
                 dataGridView1.ClearSelection();
-            }
-            selectedRow = null;
+        }
+
 
             
-        }
+
 
         /// <summary>
         /// Метод, сбрасывающий поля ввода
@@ -158,18 +159,23 @@ namespace aislab_1
                 Game selectedGame = selectedRow.DataBoundItem as Game;
                 if (selectedGame != null)
                 {
+                    //cобираем новые значения из формы
                     string newTitle = textBox_Title.Text;
                     int newRating = (int)numericUpDown_Rating.Value;
-                    string newPlatform = comboBox_Platform.Text;
+                    Guid newPlatformId = (Guid)comboBox_Platform.SelectedValue; // теперь берём Id
                     string newDeveloper = textBox_Developer.Text;
                     Genre newGenre = (Genre)comboBox_Genre.SelectedItem;
-                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatform, newDeveloper, newGenre);
+
+                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatformId, newDeveloper, newGenre);
                     UpdateGamesGrid();
                 }
             }
             else
             {
-                MessageBox.Show("Пожалуйста, выберите игру для изменения.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Пожалуйста, выберите игру для изменения.",
+                                "Информация",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
             }
         }
 
@@ -215,11 +221,32 @@ namespace aislab_1
         /// <param name="e"></param>
         private void Button_Filter_Click(object sender, EventArgs e)
         {
-            string platform = comboBox_Platform.SelectedItem.ToString();
-            var filteredGames = allGames.Where(g => g.Platform == platform).ToList();
+            if (comboBox_Platform.SelectedValue == null)
+                return;
 
-            gamesBinding.DataSource = filteredGames;
-            dataGridView1.ClearSelection();
+            var selectedPlatformId = (Guid)comboBox_Platform.SelectedValue;
+
+            var filteredGames = allGames.Where(g => g.PlatformId == selectedPlatformId).ToList();
+
+            var platforms = logic.GetAllPlatforms();
+            var displayGames = filteredGames.Select(g => new
+            {
+                g.Title,
+                g.Developer,
+                Genre = g.GameGenre.ToString(),
+                Platform = platforms.FirstOrDefault(p => p.Id == g.PlatformId)?.Name ?? "—",
+                g.ReleaseYear,
+                g.Rating
+            }).ToList();
+
+            // привязываем данные к таблице
+            gamesBinding.DataSource = displayGames;
+            dataGridView1.DataSource = gamesBinding;
+
+            // Сбрасываем выделение
+            if (dataGridView1.Rows.Count > 0)
+                dataGridView1.ClearSelection();
+
             selectedRow = null;
         }
         /// <summary>
@@ -266,7 +293,7 @@ namespace aislab_1
                     textBox_Title.Text = selectedGame.Title;
                     textBox_Developer.Text = selectedGame.Developer;
                     comboBox_Genre.SelectedItem = selectedGame.GameGenre;
-                    comboBox_Platform.SelectedItem = selectedGame.Platform;
+                    comboBox_Platform.SelectedItem = selectedGame.PlatformId;
                     numericUpDown_ReleaseYear.Value = selectedGame.ReleaseYear;
                     numericUpDown_Rating.Value = selectedGame.Rating;
                 }

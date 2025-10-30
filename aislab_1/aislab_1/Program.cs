@@ -23,7 +23,8 @@ namespace aislab_1
 
             //var repository = new DapperGameRepository();
             var repository = new EntityRepository<Game>();
-            var logic = new Logic(repository);
+            var platformRepository = new EntityRepository<Platform>();
+            var logic = new Logic(repository, platformRepository);
             Application.Run(new MainForm(logic));
 
         }

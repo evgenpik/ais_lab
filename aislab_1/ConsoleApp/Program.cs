@@ -16,7 +16,8 @@ namespace ConsoleApp
         {
             //var repository = new DapperGameRepository();           
             var repository = new EntityRepository<Game>();
-            var logic = new Logic(repository);
+            var platformRepository = new EntityRepository<Platform>();
+            var logic = new Logic(repository, platformRepository);
 
             
 
@@ -43,14 +44,20 @@ namespace ConsoleApp
                         int currentYear = DateTime.Now.Year;
                         int releaseYear = GetValidInt($"Введите год выпуска (1970-{currentYear}): ", 1970, currentYear);
 
-                        string platform = GetValidString("Введите платформу: ");
+                        var platforms = logic.GetAllPlatforms();
+                        foreach (var plat in platforms)
+                        {
+                            Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
+                        }
+                        Console.WriteLine("Введите новую платформу");
+                        Guid platformId = Guid.Parse(Console.ReadLine());
 
-                        
+
                         int rating = GetValidInt("Введите ваш рейтинг (1-10): ", 1, 10);
 
 
                    
-                        logic.AddGame(title, genre, developer, releaseYear, platform, rating);
+                        logic.AddGame(title, genre, developer, releaseYear, platformId, rating);
 
                         Console.WriteLine("\n--- Игра успешно добавлена! ---\n");
 
@@ -93,7 +100,15 @@ namespace ConsoleApp
 
                             int newRating = GetValidInt("Введите новый рейтинг: ", 0, 10);
 
-                            string newPlatform = GetValidString("Введите новую платформу: ");
+                            Console.WriteLine("Выберите Id нужной платформы");
+                            var Platforms = logic.GetAllPlatforms();
+                            foreach (var plat in Platforms)
+                            {
+                                Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
+                            }
+                            Console.WriteLine("Введите новую платформу");
+                            Guid newPlatformId = Guid.Parse(Console.ReadLine());
+
 
                             string newDeveloper = GetValidString("Введите нового разработчика: ");
 
@@ -102,7 +117,7 @@ namespace ConsoleApp
                             //if (newRating > 10) { newRating = 10; }
                             //else if (newRating < 1) newRating = 1;
 
-                            if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatform, newDeveloper, newGenre))
+                            if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatformId, newDeveloper, newGenre))
                             {
                                 Console.WriteLine("\n--- Игра успешно изменена! ---\n");
                             }
@@ -159,14 +174,20 @@ namespace ConsoleApp
                         
                     case "6":
                         Console.Clear();
-                        Console.Write("Введите платформу для фильтрации (например, PC): ");
-                        string platformFilter = Console.ReadLine();
+                        Console.Write("Выберите платформу для фильтрации (укажите Id): ");
+                        var platformsForFilter = logic.GetAllPlatforms();
+                        foreach (var plat in platformsForFilter)
+                        {
+                            Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
+                        }
+                        Console.WriteLine("Введите платформу");
+                        Guid platformIdFilter = Guid.Parse(Console.ReadLine());
 
 
-                        Console.WriteLine($"\n--- Игры на платформе '{platformFilter}' ---");
+                        Console.WriteLine($"\n--- Игры на платформе '{platformIdFilter}' ---");
 
 
-                        string filteredResult = logic.GetGamesByPlatform(platformFilter);
+                        string filteredResult = logic.GetGamesByPlatform(platformIdFilter);
 
                         Console.WriteLine(filteredResult);
                         Console.WriteLine("-------------------------------------------\n");
