@@ -168,6 +168,7 @@ namespace aislab_1
 
                     logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatformId, newDeveloper, newGenre);
                     UpdateGamesGrid();
+                    ClearInputFields();
                 }
             }
             else
@@ -293,7 +294,7 @@ namespace aislab_1
                     textBox_Title.Text = selectedGame.Title;
                     textBox_Developer.Text = selectedGame.Developer;
                     comboBox_Genre.SelectedItem = selectedGame.GameGenre;
-                    comboBox_Platform.SelectedItem = selectedGame.PlatformId;
+                    comboBox_Platform.SelectedValue = selectedGame.PlatformId;
                     numericUpDown_ReleaseYear.Value = selectedGame.ReleaseYear;
                     numericUpDown_Rating.Value = selectedGame.Rating;
                 }
