@@ -16,6 +16,7 @@ namespace DataAccessLayer
         }
 
         public DbSet<Game> Games { get; set; }
+        public DbSet<Platform> Platforms { get; set; }
 
     }
 }
