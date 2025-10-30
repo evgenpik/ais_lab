@@ -43,7 +43,11 @@ namespace aislab_1
         private void SetupInputControls()
         {
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
-            comboBox_Platform.DataSource = new string[] { "PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch", "Other" };
+            //comboBox_Platform.DataSource = new string[] { "PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch", "Other" };
+            comboBox_Platform.DataSource = logic.GetAllPlatforms();
+            comboBox_Platform.DisplayMember = "Name";
+            comboBox_Platform.ValueMember = "Id";
+
             numericUpDown_Rating.Minimum = 1;
             numericUpDown_Rating.Maximum = 10;
             numericUpDown_ReleaseYear.Minimum = 1970;
@@ -79,18 +83,26 @@ namespace aislab_1
         private void UpdateGamesGrid()
         {
 
-            allGames = logic.GetAllGames();
-            gamesBinding.DataSource = allGames; 
+            allGames = logic.GetAllGames().ToList();
+            var displayGames = allGames.Select(g => new
+            {
+                g.Title,
+                g.Developer,
+                Genre = g.GameGenre.ToString(),
+                Platform = g.Platform?.Name ?? "—",  // если платформа не загружена, ставим дефис
+                g.ReleaseYear,
+                g.Rating
+            }).ToList();
+            gamesBinding.DataSource = displayGames;
+            dataGridView1.DataSource = gamesBinding;
+
             if (dataGridView1.Rows.Count > 0)
             {
                 dataGridView1.ClearSelection();
             }
             selectedRow = null;
 
-            //allGames = logic.Games.ToList(); // сохраняем полный список
-            //gamesBinding.DataSource = allGames;
-            //dataGridView1.ClearSelection();
-            //selectedRow = null;
+            
         }
 
         /// <summary>
@@ -120,7 +132,7 @@ namespace aislab_1
             string title = textBox_Title.Text;
             string developer = textBox_Developer.Text;
             Genre genre = (Genre)comboBox_Genre.SelectedItem;
-            string platform = comboBox_Platform.SelectedItem.ToString();
+            Guid platformId = (Guid)comboBox_Platform.SelectedValue;
             int year = (int)numericUpDown_ReleaseYear.Value;
             int rating = (int)numericUpDown_Rating.Value;
 
@@ -130,7 +142,7 @@ namespace aislab_1
                 return;
             }
 
-            logic.AddGame(title, genre, developer, year, platform, rating);
+            logic.AddGame(title, genre, developer, year, platformId, rating);
             UpdateGamesGrid();
             ClearInputFields();
         }
