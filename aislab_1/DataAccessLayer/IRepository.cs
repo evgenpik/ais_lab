@@ -14,6 +14,7 @@ namespace DataAccessLayer
         IEnumerable<T> ReadAll();
         T ReadById(Guid id);
         void Update(T entity);
+         List<Platform> GetAllPlatforms();
     }
 
 }

@@ -21,10 +21,9 @@ namespace aislab_1
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //var repository = new DapperGameRepository();
-            var repository = new EntityRepository<Game>();
-            var platformRepository = new EntityRepository<Platform>();
-            var logic = new Logic(repository, platformRepository);
+            //var repository = new DapperGameRepositoryVer2();
+            var repository = new GameRepository();
+            var logic = new Logic(repository);
             Application.Run(new MainForm(logic));
 
         }

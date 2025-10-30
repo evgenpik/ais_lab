@@ -25,10 +25,24 @@ namespace DataAccessLayer
         // оно будет создавать НОВЫЙ объект подключения к базе с нашим адресом.
         private IDbConnection Connection => new SqlConnection(_connectionString);
 
-        
 
 
 
+        public List<Platform> GetAllPlatforms()
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var sql = "SELECT * FROM Platforms";
+                    return connection.Query<Platform>(sql).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка при получении платформ", ex);
+            }
+        }
         /// <summary>
         /// Реализует добавление игры в базу данных
         /// </summary>

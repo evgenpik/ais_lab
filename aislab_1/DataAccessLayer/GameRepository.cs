@@ -7,7 +7,7 @@ using System.Linq;
 namespace DataAccessLayer
 {
     /// <summary>
-    /// Репозиторий для работы с Game через Entity Framework
+    /// репозиторий для работы с Game через Entity Framework
     /// ReadAll() ВСЕГДА возвращает Game с заполненными платформами через .Join()
     /// </summary>
     public class GameRepository : IRepository<Game>
@@ -15,7 +15,7 @@ namespace DataAccessLayer
         #region CRUD методы 
 
         /// <summary>
-        /// Добавить новую игру в базу данных
+        /// добавить новую игру в базу данных
         /// </summary>
         public void Add(Game entity)
         {
@@ -34,7 +34,7 @@ namespace DataAccessLayer
         }
 
         /// <summary>
-        /// Удалить игру по ID
+        /// удалить игру по ID
         /// </summary>
         public void Delete(Guid id)
         {
@@ -57,8 +57,7 @@ namespace DataAccessLayer
         }
 
         /// <summary>
-        /// Получить все игры с заполненными платформами
-        /// ✅ ВСЕГДА с платформами благодаря .Join()
+        /// получить все игры с заполненными платформами
         /// </summary>
         public IEnumerable<Game> ReadAll()
         {
@@ -87,7 +86,7 @@ namespace DataAccessLayer
         }
 
         /// <summary>
-        /// Получить игру по ID
+        /// получить игру по ID
         /// </summary>
         public Game ReadById(Guid id)
         {
@@ -105,7 +104,7 @@ namespace DataAccessLayer
         }
 
         /// <summary>
-        /// Обновить существующую игру
+        /// обновить существующую игру
         /// </summary>
         public void Update(Game entity)
         {
@@ -128,7 +127,7 @@ namespace DataAccessLayer
         #region Дополнительные методы
 
         /// <summary>
-        /// ✅ Получить все платформы (для ComboBox и других нужд)
+        /// получить все платформы (для ComboBox и тп)
         /// </summary>
         public List<Platform> GetAllPlatforms()
         {
@@ -146,5 +145,6 @@ namespace DataAccessLayer
         }
 
         #endregion
+
     }
 }

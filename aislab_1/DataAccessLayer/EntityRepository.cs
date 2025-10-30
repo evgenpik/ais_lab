@@ -28,6 +28,7 @@ namespace DataAccessLayer
             }
         }
 
+
         /// <summary>
         /// Метод для удаления сущности по Id
         /// </summary>
@@ -84,6 +85,20 @@ namespace DataAccessLayer
                 _context.SaveChanges();
             }
                
+        }
+        public List<Platform> GetAllPlatforms()
+        {
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    return context.Platforms.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Ошибка при получении платформ", ex);
+            }
         }
     }
 }

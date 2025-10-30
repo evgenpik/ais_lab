@@ -11,14 +11,13 @@ namespace BusinessLogical
     public class Logic
     {
         private readonly IRepository<Game> _gameRepository;
-        private readonly IRepository<Platform> _platformRepository;
 
 
-        public Logic(IRepository<Game> gameRepository, IRepository<Platform> platformRepository)
+        public Logic(IRepository<Game> gameRepository)
         {
 
             _gameRepository = gameRepository;
-            _platformRepository = platformRepository;
+
         }
 
 
@@ -33,10 +32,11 @@ namespace BusinessLogical
         /// <param name="rating"></param>
         public void AddGame(string title, Genre genre, string developer, int releaseYear, Guid platformId, int rating)
         {
-            var platform = _platformRepository.ReadById(platformId);
+            var platforms = _gameRepository.GetAllPlatforms();//ааааа
+            var platform = platforms.FirstOrDefault(p => p.Id == platformId);
+            //тут мы получаем существующие платформы по и тип проверяем, есть ли платформа с таким Id
             if (platform == null)
                 throw new Exception($"Платформа с Id {platformId} не найдена!");
-
 
             Game game = new Game()
             {
@@ -46,13 +46,15 @@ namespace BusinessLogical
                 Developer = developer,
                 ReleaseYear = releaseYear,
                 PlatformId = platform.Id,
-                PlatformName = platform.Name,
+                PlatformName = platform.Name, 
                 Rating = rating
             };
-
             _gameRepository.Add(game);
         }
-
+        public List<Platform> GetAllPlatforms()
+        {
+            return _gameRepository.GetAllPlatforms();  
+        }
         /// <summary>
         /// Читает сущности
         /// </summary>
@@ -60,9 +62,7 @@ namespace BusinessLogical
         public string GetAll()
         {
             StringBuilder sb = new StringBuilder();
-
-            var allGames = _gameRepository.ReadAll();
-
+            var allGames = _gameRepository.ReadAll();  
             foreach (Game game in allGames)
             {
                 sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.PlatformName} | Рейтинг: {game.Rating}/10");
@@ -75,7 +75,6 @@ namespace BusinessLogical
         /// </summary>
         public List<Game> GetAllGames()
         {
-            // Просим у репозитория все игры и превращаем результат в List<Game>.
             return _gameRepository.ReadAll().ToList();
         }
 
@@ -111,27 +110,27 @@ namespace BusinessLogical
         /// <param name="newTtile"></param>
         /// <param name="newRating"></param>
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
-        public bool ChangeGame(Guid id, string newTtile, int newRating, Guid newPlatformId, string newDeveloper, Genre newGenre)
+        public bool ChangeGame(Guid id, string newTitle, int newRating, Guid newPlatformId, string newDeveloper, Genre newGenre)
         {
             Game gameChange = _gameRepository.ReadById(id);
-            var platform = _platformRepository.ReadById(newPlatformId);
+            if (gameChange == null)
+                return false;
+
+            var platforms = _gameRepository.GetAllPlatforms();
+            var platform = platforms.FirstOrDefault(p => p.Id == newPlatformId);
+
             if (platform == null)
                 throw new Exception($"Платформа с Id {newPlatformId} не найдена!");
 
-            if (gameChange != null)
-            {
-                gameChange.Rating = newRating;
-                gameChange.Title = newTtile;
-                gameChange.Developer = newDeveloper;
-                gameChange.PlatformId = newPlatformId;
-                gameChange.GameGenre = newGenre;
-                _gameRepository.Update(gameChange);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            gameChange.Rating = newRating;
+            gameChange.Title = newTitle;
+            gameChange.Developer = newDeveloper;
+            gameChange.PlatformId = newPlatformId;
+            gameChange.PlatformName = platform.Name;  
+            gameChange.GameGenre = newGenre;
+
+            _gameRepository.Update(gameChange);
+            return true;
         }
         /// <summary>
         /// Метод для удаления игры
@@ -142,19 +141,7 @@ namespace BusinessLogical
         {
             _gameRepository.Delete(id);
             return true;
-
-
-            //Game gameToDelete = Games.FirstOrDefault(g => g.Id == id);
-            //if (gameToDelete != null)
-            //{
-            //    Games.Remove(gameToDelete);
-            //    return true; 
-            //}
-            //else
-            //{
-            //    return false; 
-            //}
-
+            
         }
         /// <summary>
         /// Метод для группировки игр
@@ -186,31 +173,25 @@ namespace BusinessLogical
         /// </summary>
         /// <param name="platform"></param>
         /// <returns></returns>
-        public string GetGamesByPlatform(Guid platformId)
+        public string GetGamesByPlatform(string platformName)
         {
-            var platform = _platformRepository.ReadById(platformId);
-            if (platform == null)
-                throw new Exception($"Платформа с Id {platformId} не найдена!");
-
-            var filteredGames = _gameRepository.ReadAll()
-                .Where(game => game.PlatformName.Equals(platform.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+            var allGames = _gameRepository.ReadAll(); 
+            var filteredGames = allGames
+                .Where(game => game.PlatformName.Equals(platformName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
             if (filteredGames.Count == 0)
-            {
-                return $"Игры на платформе '{platform.Name}' не найдены.";
-            }
+                return $"Игры на платформе '{platformName}' не найдены.";
 
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"--- Игры на платформе '{platformName}' ---");
             foreach (var game in filteredGames)
             {
-                sb.AppendLine($"{game.Title} (Рейтинг: {game.Rating}/10)");
+                sb.AppendLine($"{game.Title} ({game.GameGenre}) - Рейтинг: {game.Rating}/10");
             }
             return sb.ToString();
         }
 
-        public List<Platform> GetAllPlatforms()
-        {
-            return _platformRepository.ReadAll().ToList();
-        }
+
     }
 }

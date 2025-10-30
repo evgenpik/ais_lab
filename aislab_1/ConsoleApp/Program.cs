@@ -14,80 +14,59 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            //var repository = new DapperGameRepository();           
-            var repository = new EntityRepository<Game>();
-            var platformRepository = new EntityRepository<Platform>();
-            var logic = new Logic(repository, platformRepository);
 
-            
+            var gameRepository = new GameRepository();
+            var logic = new Logic(gameRepository);
 
             while (true)
             {
                 Console.WriteLine("Выберите действие:\n" +
-                    "1.Добавить игру\n" +
-                    "2.Посмотреть свойства игры\n" +
-                    "3.Изменить игру\n" +
-                    "4.Удалить игру\n" +
-                    "5.Группировать по жанрам\n" +
-                    "6.Отсортировать по платформе и рейтингу\n");
+                "1.Добавить игру\n" +
+                "2.Посмотреть свойства игры\n" +
+                "3.Изменить игру\n" +
+                "4.Удалить игру\n" +
+                "5.Группировать по жанрам\n" +
+                "6.Отсортировать по платформе и рейтингу\n");
+
                 switch (Console.ReadLine())
                 {
                     case "1":
                         Console.Clear();
                         string title = GetValidString("Введите название игры: ");
-
                         Genre genre = GetValidGenre("Введите жанр:");
-
                         string developer = GetValidString("Введите разработчика: ");
-
-                        
                         int currentYear = DateTime.Now.Year;
                         int releaseYear = GetValidInt($"Введите год выпуска (1970-{currentYear}): ", 1970, currentYear);
+
 
                         var platforms = logic.GetAllPlatforms();
                         foreach (var plat in platforms)
                         {
                             Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
                         }
+
                         Console.WriteLine("Введите новую платформу");
                         Guid platformId = Guid.Parse(Console.ReadLine());
-
-
                         int rating = GetValidInt("Введите ваш рейтинг (1-10): ", 1, 10);
 
-
-                   
                         logic.AddGame(title, genre, developer, releaseYear, platformId, rating);
-
                         Console.WriteLine("\n--- Игра успешно добавлена! ---\n");
-
-                        
-
                         break;
-
 
                     case "2":
                         Console.Clear();
                         Console.WriteLine("\n ---Cписок ваших игр и их свойства---");
-
                         string allGamesInfo = logic.GetAll();
-
-                        if (string.IsNullOrEmpty(allGamesInfo)) 
-                            {
+                        if (string.IsNullOrEmpty(allGamesInfo))
+                        {
                             Console.WriteLine("У вас пока нет добавленных игр");
-                            }
+                        }
                         else
                         {
                             Console.WriteLine(allGamesInfo);
                         }
-
-
-                        
-
                         Console.WriteLine("--------------------------------\n");
-
                         break;
-
 
                     case "3":
                         Console.Clear();
@@ -95,56 +74,43 @@ namespace ConsoleApp
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
                         {
-
                             string newTitle = GetValidString("Введите новое название: ");
-
                             int newRating = GetValidInt("Введите новый рейтинг: ", 0, 10);
 
                             Console.WriteLine("Выберите Id нужной платформы");
+
                             var Platforms = logic.GetAllPlatforms();
                             foreach (var plat in Platforms)
                             {
                                 Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
                             }
+
                             Console.WriteLine("Введите новую платформу");
                             Guid newPlatformId = Guid.Parse(Console.ReadLine());
-
-
                             string newDeveloper = GetValidString("Введите нового разработчика: ");
-
                             Genre newGenre = GetValidGenre("Введите новый жанр: ");
-
-                            //if (newRating > 10) { newRating = 10; }
-                            //else if (newRating < 1) newRating = 1;
 
                             if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatformId, newDeveloper, newGenre))
                             {
                                 Console.WriteLine("\n--- Игра успешно изменена! ---\n");
                             }
-
                             else
                             {
                                 Console.WriteLine("\n--- Игра с таким ID не найдена. ---\n");
                             }
-                            
-
                         }
                         else
                         {
                             Console.WriteLine("\n--- Некорректный формат ID. ---\n");
                         }
-
                         break;
 
-                        
-                       
                     case "4":
                         Console.Clear();
                         Console.WriteLine(logic.GetGameListForSelection());
-
                         Console.Write("Введите ID игры, которую хотите удалить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForDelete))
-                        {                           
+                        {
                             if (logic.DeleteGame(idForDelete))
                             {
                                 Console.WriteLine("\n--- Игра успешно удалена! ---\n");
@@ -158,9 +124,6 @@ namespace ConsoleApp
                         {
                             Console.WriteLine("\n--- Некорректный формат ID. ---\n");
                         }
-
-                        
-                        
                         break;
 
                     case "5":
@@ -169,31 +132,27 @@ namespace ConsoleApp
                         string groupedResult = logic.GetGamesGroupedByGenre();
                         Console.WriteLine(groupedResult);
                         Console.WriteLine("--------------------------------------\n");
-
                         break;
-                        
+
                     case "6":
                         Console.Clear();
-                        Console.Write("Выберите платформу для фильтрации (укажите Id): ");
+                        Console.Write("Выберите платформу для фильтрации: ");
+
                         var platformsForFilter = logic.GetAllPlatforms();
                         foreach (var plat in platformsForFilter)
                         {
                             Console.WriteLine($"Id: {plat.Id} | Название: {plat.Name}");
                         }
-                        Console.WriteLine("Введите платформу");
-                        Guid platformIdFilter = Guid.Parse(Console.ReadLine());
 
+                        Console.WriteLine("Введите платформу (укажите её название):");
+                        string platformName = Console.ReadLine(); 
 
-                        Console.WriteLine($"\n--- Игры на платформе '{platformIdFilter}' ---");
-
-
-                        string filteredResult = logic.GetGamesByPlatform(platformIdFilter);
-
+                        Console.WriteLine($"\n--- Игры на платформе '{platformName}' ---");
+                        string filteredResult = logic.GetGamesByPlatform(platformName);  
                         Console.WriteLine(filteredResult);
                         Console.WriteLine("-------------------------------------------\n");
                         break;
                 }
-
             }
         }
 
@@ -205,11 +164,11 @@ namespace ConsoleApp
             string input;
             while (true)
             {
-                Console.Write(prompt); 
+                Console.Write(prompt);
                 input = Console.ReadLine();
                 if (!string.IsNullOrWhiteSpace(input))
                 {
-                    return input; 
+                    return input;
                 }
                 Console.WriteLine("Ошибка: Ввод не может быть пустым. Попробуйте снова.");
             }
@@ -225,10 +184,9 @@ namespace ConsoleApp
             {
                 Console.Write(prompt);
                 string input = Console.ReadLine();
-                
                 if (int.TryParse(input, out result) && result >= min && result <= max)
                 {
-                    return result; 
+                    return result;
                 }
                 Console.WriteLine($"Ошибка: Пожалуйста, введите целое число от {min} до {max}.");
             }
@@ -242,18 +200,15 @@ namespace ConsoleApp
             Genre result;
             while (true)
             {
-                
                 Console.WriteLine(prompt + $" (Доступные: {string.Join(", ", Enum.GetNames(typeof(Genre)))})");
                 Console.Write("> ");
                 string input = Console.ReadLine();
-                
-                if (Enum.TryParse<Genre>(input, true, out result))
+                if (Enum.TryParse(input, true, out result))
                 {
-                    return result; 
+                    return result;
                 }
                 Console.WriteLine("Ошибка: Такого жанра не существует. Попробуйте снова.");
             }
         }
-
     }
 }
