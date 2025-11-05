@@ -60,31 +60,64 @@ namespace ConsoleApp
 
 
                     case "2":
-                        Console.Clear();
-                        Console.WriteLine("\n ---Cписок ваших игр и их свойства---");
+                        //Console.Clear();
+                        //Console.WriteLine("\n ---Cписок ваших игр и их свойства---");
 
-                        string allGamesInfo = logic.GetAll();
+                        //string allGamesInfo = logic.GetAll();
 
-                        if (string.IsNullOrEmpty(allGamesInfo)) 
-                            {
+                        //if (string.IsNullOrEmpty(allGamesInfo)) 
+                        //    {
+                        //    Console.WriteLine("У вас пока нет добавленных игр");
+                        //    }
+                        //else
+                        //{
+                        //    Console.WriteLine(allGamesInfo);
+                        //}
+
+
+
+
+                        //Console.WriteLine("--------------------------------\n");
+
+                        //break;
+
+                        var allGames = logic.GetAllGames(); // Получаем список объектов
+                        if (!allGames.Any())
+                        {
                             Console.WriteLine("У вас пока нет добавленных игр");
-                            }
+                        }
                         else
                         {
-                            Console.WriteLine(allGamesInfo);
+                            // Сами форматируем вывод
+                            foreach (var game in allGames)
+                            {
+                                Console.WriteLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
+                            }
                         }
-
-
-                        
-
                         Console.WriteLine("--------------------------------\n");
-
                         break;
 
 
                     case "3":
                         Console.Clear();
-                        Console.WriteLine(logic.GetGameListForSelection());
+                        //Console.WriteLine(logic.GetGameListForSelection());
+
+                        //тут я поменял, так как эти два метода (GetGameListForSelection и GetAllGames)
+                        //делают одно и тоже, простопроверку перенес так же как и с остальными
+                        Console.WriteLine("Список игр для выбора:");
+                        var gamesToSelectFrom = logic.GetAllGames();
+                        if (!gamesToSelectFrom.Any())
+                        {
+                            Console.WriteLine("У вас нет добавленных игр.");
+                            break; // Выходим из case "3"
+                        }
+                        foreach (var game in gamesToSelectFrom)
+                        {
+                            Console.WriteLine($"ID: {game.Id} | Название: {game.Title}");
+                        }
+
+
+
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
                         {
@@ -99,8 +132,7 @@ namespace ConsoleApp
 
                             Genre newGenre = GetValidGenre("Введите новый жанр: ");
 
-                            //if (newRating > 10) { newRating = 10; }
-                            //else if (newRating < 1) newRating = 1;
+                           
 
                             if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatform, newDeveloper, newGenre))
                             {
@@ -125,9 +157,22 @@ namespace ConsoleApp
                        
                     case "4":
                         Console.Clear();
-                        Console.WriteLine(logic.GetGameListForSelection());
+                        //Console.WriteLine(logic.GetGameListForSelection());
+                        Console.WriteLine("Список игр для выбора:");
+                        var gamesToDeleteFrom = logic.GetAllGames();
+                        if (!gamesToDeleteFrom.Any())
+                        {
+                            Console.WriteLine("У вас нет добавленных игр.");
+                            break; // Выходим из case "4"
+                        }
+                        foreach (var game in gamesToDeleteFrom)
+                        {
+                            Console.WriteLine($"ID: {game.Id} | Название: {game.Title}");
+                        }
 
-                        Console.Write("Введите ID игры, которую хотите удалить: ");
+
+
+                        Console.WriteLine("Введите ID игры, которую хотите удалить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForDelete))
                         {                           
                             if (logic.DeleteGame(idForDelete))
@@ -149,13 +194,26 @@ namespace ConsoleApp
                         break;
 
                     case "5":
+
                         Console.Clear();
                         Console.WriteLine("\n--- Игры, сгруппированные по жанрам ---");
-                        string groupedResult = logic.GetGamesGroupedByGenre();
-                        Console.WriteLine(groupedResult);
-                        Console.WriteLine("--------------------------------------\n");
+                        //string groupedResult = logic.GetGamesGroupedByGenre();
+                        //Console.WriteLine(groupedResult);
+                        //Console.WriteLine("--------------------------------------\n");
 
+                        var groupedGames = logic.GetGamesGroupedByGenre(); 
+                        foreach (var group in groupedGames)
+                        {
+                            Console.WriteLine($"\n--- Жанр: {group.Key} ---");
+                            foreach (var game in group)
+                            {
+                                Console.WriteLine($"    {game.Title} (Рейтинг: {game.Rating}/10)");
+                            }
+                        }
+                        Console.WriteLine("--------------------------------------\n");
                         break;
+
+                        
                         
                     case "6":
                         Console.Clear();
@@ -166,9 +224,24 @@ namespace ConsoleApp
                         Console.WriteLine($"\n--- Игры на платформе '{platformFilter}' ---");
 
 
-                        string filteredResult = logic.GetGamesByPlatform(platformFilter);
+                        //string filteredResult = logic.GetGamesByPlatform(platformFilter);
 
-                        Console.WriteLine(filteredResult);
+                        //Console.WriteLine(filteredResult);
+                        //Console.WriteLine("-------------------------------------------\n");
+                        //break;
+
+                        var filteredGames = logic.GetGamesByPlatform(platformFilter);
+                        if (!filteredGames.Any())
+                        {
+                            Console.WriteLine($"Игры на платформе '{platformFilter}' не найдены.");
+                        }
+                        else
+                        {
+                            foreach (var game in filteredGames)
+                            {
+                                Console.WriteLine($"{game.Title} (Рейтинг: {game.Rating}/10)");
+                            }
+                        }
                         Console.WriteLine("-------------------------------------------\n");
                         break;
                 }

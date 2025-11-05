@@ -49,18 +49,19 @@ namespace BusinessLogical
         /// Читает сущности
         /// </summary>
         /// <returns>Возвращает строку с данными об играх</returns>
-        public string GetAll()
-        {
-            StringBuilder sb = new StringBuilder();
+        
+        //public string GetAll()
+        //{
+        //    StringBuilder sb = new StringBuilder();
 
-            var allGames = repository.ReadAll();
+        //    var allGames = repository.ReadAll();
 
-            foreach (Game game in allGames)
-            {
-                sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
-            }
-            return sb.ToString();
-        }
+        //    foreach (Game game in allGames)
+        //    {
+        //        sb.AppendLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {game.Platform} | Рейтинг: {game.Rating}/10");
+        //    }
+        //    return sb.ToString();
+        //}
 
         /// <summary>
         /// Возвращает "сырой" список всех игр для использования в слое Представления (например, WinForms)
@@ -75,26 +76,26 @@ namespace BusinessLogical
         /// Метод для дальнейшего отбора игр
         /// </summary>
         /// <returns>Строка с ID и названием игры</returns>
-        public string GetGameListForSelection()
-        {
-            var allGames = repository.ReadAll();
+        //public string GetGameListForSelection()
+        //{
+            //var allGames = repository.ReadAll();
 
-            if (!allGames.Any())
-            {
-                return "У вас нет добавленных игр.";
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Список игр:");
+            //if (!allGames.Any())
+            //{
+            //    return "У вас нет добавленных игр.";
+            //}
+            //StringBuilder sb = new StringBuilder();
+            //sb.AppendLine("Список игр:");
 
-            foreach (var game in allGames)
-            {
-                sb.AppendLine($"ID: {game.Id}| Название: {game.Title}");
+            //foreach (var game in allGames)
+            //{
+            //    sb.AppendLine($"ID: {game.Id}| Название: {game.Title}");
 
-            }
-            return sb.ToString();
+            //}
+            //return sb.ToString();
+            
 
-
-        }
+        //}
 
         /// <summary>
         /// Метод для изменения данных об игре
@@ -149,25 +150,31 @@ namespace BusinessLogical
         /// Метод для группировки игр
         /// </summary>
         /// <returns>Строка с сгруппированными играми</returns>
-        public string GetGamesGroupedByGenre()
+        //public string GetGamesGroupedByGenre()
+        //{
+        //    var allGames = repository.ReadAll();
+
+        //    if (!allGames.Any()) return "Нет игр для группировки.";
+
+        //    StringBuilder sb = new StringBuilder();         
+        //    var groupedGames = allGames.GroupBy(game => game.GameGenre);
+
+        //    foreach (var group in groupedGames)
+        //    {
+        //        sb.AppendLine($"\n--- Жанр: {group.Key} ---"); 
+
+        //        foreach (var game in group)
+        //        {
+        //            sb.AppendLine($"    {game.Title} (Рейтинг: {game.Rating}/10)");
+        //        }
+        //    }
+        //    return sb.ToString();
+        //}
+
+        public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
             var allGames = repository.ReadAll();
-
-            if (!allGames.Any()) return "Нет игр для группировки.";
-
-            StringBuilder sb = new StringBuilder();         
-            var groupedGames = allGames.GroupBy(game => game.GameGenre);
-           
-            foreach (var group in groupedGames)
-            {
-                sb.AppendLine($"\n--- Жанр: {group.Key} ---"); 
-
-                foreach (var game in group)
-                {
-                    sb.AppendLine($"    {game.Title} (Рейтинг: {game.Rating}/10)");
-                }
-            }
-            return sb.ToString();
+            return allGames.GroupBy(game => game.GameGenre);
         }
 
         /// <summary>
@@ -175,22 +182,43 @@ namespace BusinessLogical
         /// </summary>
         /// <param name="platform"></param>
         /// <returns></returns>
-        public string GetGamesByPlatform(string platform)
+        /// 
+
+        //public string GetGamesByPlatform(string platform)
+        //{
+        //    var filteredGames = repository.ReadAll()
+        //        .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        //    if (filteredGames.Count == 0)
+        //    {
+        //        return $"Игры на платформе '{platform}' не найдены.";
+        //    }
+
+        //    StringBuilder sb = new StringBuilder();
+        //    foreach (var game in filteredGames)
+        //    {
+        //        sb.AppendLine($"{game.Title} (Рейтинг: {game.Rating}/10)");
+        //    }
+        //    return sb.ToString();
+        //}
+
+        public List<Game> GetGamesByPlatform(string platform)
         {
-            var filteredGames = repository.ReadAll()
-                .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)).ToList();
+            return repository.ReadAll()
+                .Where(game => game.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
 
-            if (filteredGames.Count == 0)
-            {
-                return $"Игры на платформе '{platform}' не найдены.";
-            }
 
-            StringBuilder sb = new StringBuilder();
-            foreach (var game in filteredGames)
-            {
-                sb.AppendLine($"{game.Title} (Рейтинг: {game.Rating}/10)");
-            }
-            return sb.ToString();
+        /// <summary>
+        /// Получает список игр по заданному условию (фильтру)
+        /// </summary>
+        /// <param name="filter">Условие для фильтрации</param>
+        /// <returns>Список отфильтрованных игр</returns>
+        /// то есть это гибкий метод для более сложной фильтрации который как раз демонстрирует принцип Open/Closed, 
+        public List<Game> GetGamesByFilter(Func<Game, bool> filter)
+        {
+            return repository.ReadAll().Where(filter).ToList();
         }
     }
 }
