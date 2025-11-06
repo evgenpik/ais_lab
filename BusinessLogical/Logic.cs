@@ -12,7 +12,8 @@ namespace BusinessLogical
     {
         private readonly IRepository<Game> repository;
 
-        
+        //высокоуровневый код (Logic) зависит от абстракций,
+        //а выбор конкретных зависимостей делегируется контейнеру внедрения зависимостей SimpleConfigModule.
         public Logic(IRepository<Game> repo)
         {
             

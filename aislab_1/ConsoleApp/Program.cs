@@ -1,24 +1,34 @@
-﻿using System;
+﻿using BusinessLogical;
+using DataAccessLayer;
+using Model;
+using Ninject;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLogical;
-using Model;
-using System.Configuration;
-using DataAccessLayer;
 
 namespace ConsoleApp
 {
     internal class Program
     {
+        private static IKernel kernel;//создаем в каждом классе Program, тк форма и консоль -
+                                      //разные процессы с разной памятью
+                                      //тут как бы поле, к которому можно обращаться из любых методов в program
+                                      //таким образом мы один раз создаем контейнер и сохраняем синглтон
         static void Main(string[] args)
         {
-            //var repository = new DapperGameRepository();           
-            var repository = new EntityRepository<Game>();
-            var logic = new Logic(repository);
+            //стало
+            kernel = new StandardKernel(new SimpleConfigModule());
+            var logic = kernel.Get<Logic>();
 
-            
+            //было
+            //var repository = new DapperGameRepository();     
+            /*var repository = new EntityRepository<Game>();
+            var logic = new Logic(repository);*/
+
+
 
             while (true)
             {
