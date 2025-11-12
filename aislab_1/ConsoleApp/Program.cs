@@ -26,7 +26,8 @@ namespace ConsoleApp
                 "3.Изменить игру\n" +
                 "4.Удалить игру\n" +
                 "5.Группировать по жанрам\n" +
-                "6.Отсортировать по платформе и рейтингу\n");
+                "6.Отсортировать по платформе и рейтингу\n" +
+                "7.Добавить платформу\n");
 
                 switch (Console.ReadLine())
                 {
@@ -66,7 +67,7 @@ namespace ConsoleApp
                         Console.WriteLine("\n---Список ваших игр и их свойства---");
 
                         var allGames = logic.GetAllGames();
-                        var allPlatforms = logic.GetAllPlatforms();
+                        var allPlatforms = logic.GetAllPlatforms().ToList();
 
                         if (!allGames.Any())
                         {
@@ -232,6 +233,22 @@ namespace ConsoleApp
                         }
                         Console.WriteLine("-------------------------------------------\n");
                         break;
+                    case "7":
+                        Console.Clear();
+                        Console.WriteLine("\n--- Добавление новой платформы ---");
+
+                        string newPlatformName = GetValidString("Введите название новой платформы: ");
+                        if (logic.TryAddPlatform(newPlatformName))
+                        {
+
+                            Console.WriteLine("\n--- Платформа успешно добавлена! ---\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n--- Не удалось добавить платформу. Возможно, она уже существует или введено пустое имя. ---\n");
+                        }
+                        break;
+
                 }
             }
         }

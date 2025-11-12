@@ -11,12 +11,12 @@ namespace BusinessLogical
     public class Logic 
     {
         private readonly IRepository<Game> repository;
-        private readonly IRepository<Platform> platformRepository;
+        private readonly IPlatformRepository platformRepository;
 
 
         //высокоуровневый код (Logic) зависит от абстракций,
         //а выбор конкретных зависимостей делегируется контейнеру внедрения зависимостей SimpleConfigModule.
-        public Logic(IRepository<Game> repo, IRepository<Platform> platform_repo)
+        public Logic(IRepository<Game> repo, IPlatformRepository platform_repo)
         {
             
             repository = repo;
@@ -103,6 +103,11 @@ namespace BusinessLogical
 
         }
         
+        public bool DeletePlatform(Guid id)
+        {
+            platformRepository.Delete(id);
+            return true;
+        }
 
         public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
@@ -129,6 +134,27 @@ namespace BusinessLogical
         public List<Game> GetGamesByFilter(Func<Game, bool> filter)
         {
             return repository.ReadAll().Where(filter).ToList();
+        }
+        public bool TryAddPlatform(string platformName)
+        {
+            if (string.IsNullOrWhiteSpace(platformName))
+            {
+                return false; 
+            }
+
+            var existingPlatform = platformRepository.GetByName(platformName);
+            if (existingPlatform != null)
+            {
+                return false;
+            }
+
+            var newPlatform = new Platform
+            {
+                Id = Guid.NewGuid(),
+                Name = platformName
+            };
+            platformRepository.Add(newPlatform);
+            return true;
         }
     }
 }

@@ -288,26 +288,39 @@ namespace aislab_1
         }
         private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            // Проверяем, что это наша колонка "Платформа".
-            // Индекс 3, потому что мы добавили ее четвертой (индексация с 0).
-            // Название - Разработчик - Жанр - Платформа
+            
             if (e.ColumnIndex == 3 && e.Value != null)
-            {
-                // e.Value содержит тот объект, который DataGridView пытается отобразить.
-                // В нашем случае это объект типа Platform.
+            {   
                 if (e.Value is Platform platform)
-                {
-                    // Мы заменяем то, что будет отображено в ячейке,
-                    // на значение свойства Name нашего объекта.
+                {                    
                     e.Value = platform.Name;
-
-                    // e.FormattingApplied = true; говорит DataGridView,
-                    // что мы закончили форматирование и больше ничего делать не нужно.
                     e.FormattingApplied = true;
                 }
             }
         }
 
+        private void buttonAddPlatform_Click(object sender, EventArgs e)
+        {
+            string newName = textBoxPlatformName.Text;
+
+            if (logic.TryAddPlatform(newName))
+            {
+                MessageBox.Show("Платформа успешно добавлена!");
+
+                // нужно обновить список платформ в UI
+                _cachedPlatforms = logic.GetAllPlatforms().ToList();
+                comboBox_Platform.DataSource = null; 
+                comboBox_Platform.DataSource = _cachedPlatforms;
+                comboBox_Platform.DisplayMember = "Name";
+                comboBox_Platform.ValueMember = "Id";
+
+                textBoxPlatformName.Clear();
+            }
+            else
+            {
+                MessageBox.Show("Не удалось добавить платформу. Возможно, она уже существует или имя пустое.");
+            }
+        }
     }
 }
 

@@ -123,6 +123,7 @@
     <Compile Include="AppDbContext.cs" />
     <Compile Include="DapperGameRepository.cs" />
     <Compile Include="EntityRepository.cs" />
+    <Compile Include="IPlatformRepository.cs" />
     <Compile Include="IReadRepository.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IWriteRepository.cs" />
@@ -131,6 +132,7 @@
       <DependentUpon>202511121021522_AddPlatformEntity.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="PlatformRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
