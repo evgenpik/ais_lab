@@ -21,6 +21,7 @@ namespace aislab_1
         private DataGridViewRow selectedRow = null; //выборная ячейка таблицы
         private BindingSource gamesBinding = new BindingSource(); //прослойка чтобы спокойно работать с таблицей
         private List<Game> allGames;
+        private List<Platform> _cachedPlatforms;
 
         public MainForm(Logic logic)
         {
@@ -31,6 +32,7 @@ namespace aislab_1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            _cachedPlatforms = logic.GetAllPlatforms().ToList();
             SetupInputControls();
             SetupDataGridView();
             UpdateGamesGrid();
@@ -43,7 +45,10 @@ namespace aislab_1
         private void SetupInputControls()
         {
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
-            comboBox_Platform.DataSource = new string[] { "PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch", "Other" };
+            //comboBox_Platform.DataSource = new string[] { "PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch", "Other" };
+            comboBox_Platform.DataSource = _cachedPlatforms;
+            comboBox_Platform.DisplayMember = "Name";    // Показываем имя
+            comboBox_Platform.ValueMember = "Id";
             numericUpDown_Rating.Minimum = 1;
             numericUpDown_Rating.Maximum = 10;
             numericUpDown_ReleaseYear.Minimum = 1970;
@@ -60,6 +65,7 @@ namespace aislab_1
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Название", DataPropertyName = "Title" });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Разработчик", DataPropertyName = "Developer" });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Жанр", DataPropertyName = "GameGenre" });
+            //dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Платформа", DataPropertyName = "Platform.Name" });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Платформа", DataPropertyName = "Platform" });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Рейтинг", DataPropertyName = "Rating" });
 
@@ -71,6 +77,7 @@ namespace aislab_1
 
             dataGridView1.DataSource = gamesBinding;
             dataGridView1.SelectionChanged += DataGridView1_SelectionChanged;
+            dataGridView1.CellFormatting += DataGridView1_CellFormatting;
         }
 
         /// <summary>
@@ -80,17 +87,25 @@ namespace aislab_1
         {
 
             allGames = logic.GetAllGames();
-            gamesBinding.DataSource = allGames; 
+            //if (_cachedPlatforms == null)
+            //{
+            //    _cachedPlatforms = logic.GetAllPlatforms().ToList();
+            //}
+            //var platformDictionary = _cachedPlatforms.ToDictionary(p => p.Id);
+
+            //foreach (var game in allGames)
+            //{
+            //    if (platformDictionary.TryGetValue(game.PlatformId, out Platform platform))
+            //    {
+            //        game.Platform = platform;
+            //    }
+            //}
+
+            gamesBinding.DataSource = allGames;
             if (dataGridView1.Rows.Count > 0)
             {
                 dataGridView1.ClearSelection();
             }
-            selectedRow = null;
-
-            //allGames = logic.Games.ToList(); // сохраняем полный список
-            //gamesBinding.DataSource = allGames;
-            //dataGridView1.ClearSelection();
-            //selectedRow = null;
         }
 
         /// <summary>
@@ -120,7 +135,7 @@ namespace aislab_1
             string title = textBox_Title.Text;
             string developer = textBox_Developer.Text;
             Genre genre = (Genre)comboBox_Genre.SelectedItem;
-            string platform = comboBox_Platform.SelectedItem.ToString();
+            Guid platformId = (Guid)comboBox_Platform.SelectedValue;
             int year = (int)numericUpDown_ReleaseYear.Value;
             int rating = (int)numericUpDown_Rating.Value;
 
@@ -130,7 +145,7 @@ namespace aislab_1
                 return;
             }
 
-            logic.AddGame(title, genre, developer, year, platform, rating);
+            logic.AddGame(title, genre, developer, year, platformId, rating);
             UpdateGamesGrid();
             ClearInputFields();
         }
@@ -148,10 +163,10 @@ namespace aislab_1
                 {
                     string newTitle = textBox_Title.Text;
                     int newRating = (int)numericUpDown_Rating.Value;
-                    string newPlatform = comboBox_Platform.Text;
+                    Guid newPlatformId = (Guid)comboBox_Platform.SelectedValue;
                     string newDeveloper = textBox_Developer.Text;
                     Genre newGenre = (Genre)comboBox_Genre.SelectedItem;
-                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatform, newDeveloper, newGenre);
+                    logic.ChangeGame(selectedGame.Id, newTitle, newRating, newPlatformId, newDeveloper, newGenre);
                     UpdateGamesGrid();
                 }
             }
@@ -203,9 +218,8 @@ namespace aislab_1
         /// <param name="e"></param>
         private void Button_Filter_Click(object sender, EventArgs e)
         {
-            string platform = comboBox_Platform.SelectedItem.ToString();
-            var filteredGames = allGames.Where(g => g.Platform == platform).ToList();
-
+            Guid platformId = (Guid)comboBox_Platform.SelectedValue;  // ✅ Получаем Guid
+            var filteredGames = allGames.Where(g => g.PlatformId == platformId).ToList();
             gamesBinding.DataSource = filteredGames;
             dataGridView1.ClearSelection();
             selectedRow = null;
@@ -254,7 +268,7 @@ namespace aislab_1
                     textBox_Title.Text = selectedGame.Title;
                     textBox_Developer.Text = selectedGame.Developer;
                     comboBox_Genre.SelectedItem = selectedGame.GameGenre;
-                    comboBox_Platform.SelectedItem = selectedGame.Platform;
+                    comboBox_Platform.SelectedValue = selectedGame.PlatformId;
                     numericUpDown_ReleaseYear.Value = selectedGame.ReleaseYear;
                     numericUpDown_Rating.Value = selectedGame.Rating;
                 }
@@ -272,8 +286,67 @@ namespace aislab_1
         {
             UpdateGamesGrid();
         }
+        private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            
+            if (e.ColumnIndex == 3 && e.Value != null)
+            {   
+                if (e.Value is Platform platform)
+                {                    
+                    e.Value = platform.Name;
+                    e.FormattingApplied = true;
+                }
+            }
+        }
 
-       
+        private void buttonAddPlatform_Click(object sender, EventArgs e)
+        {
+            string newName = textBoxPlatformSearch.Text;
+
+            if (logic.TryAddPlatform(newName))
+            {
+                MessageBox.Show("Платформа успешно добавлена!");
+
+                // нужно обновить список платформ в UI
+                _cachedPlatforms = logic.GetAllPlatforms().ToList();
+                comboBox_Platform.DataSource = null; 
+                comboBox_Platform.DataSource = _cachedPlatforms;
+                comboBox_Platform.DisplayMember = "Name";
+                comboBox_Platform.ValueMember = "Id";
+
+                textBoxPlatformSearch.Clear();
+            }
+            else
+            {
+                MessageBox.Show("Не удалось добавить платформу. Возможно, она уже существует или имя пустое.");
+            }
+        }
+
+        private void btnSearchByPlatform_Click(object sender, EventArgs e)
+        {
+            string platformName = txtPlatformSearch.Text;
+            if (string.IsNullOrEmpty(platformName))
+            {
+                MessageBox.Show("Пожалуйста, введите имя платформы для поиска.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var foundGames = logic.FindGamesOnPlatformByName(platformName);
+
+            if (!foundGames.Any())
+            {
+                MessageBox.Show($"Игры для платформы '{platformName}' не найдены.", "Результат поиска", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            gamesBinding.DataSource = foundGames;
+
+            if (dataGridView1.Rows.Count > 0)
+            {
+                dataGridView1.ClearSelection();
+            }
+
+        }
     }
 }
 

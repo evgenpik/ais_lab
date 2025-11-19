@@ -16,6 +16,18 @@ namespace DataAccessLayer
         }
 
         public DbSet<Game> Games { get; set; }
+        public DbSet<Platform> Platforms { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Game>()
+                .HasRequired(g => g.Platform)
+                .WithMany(p => p.Games)
+                .HasForeignKey(g => g.PlatformId);
+        }
+
 
     }
 }

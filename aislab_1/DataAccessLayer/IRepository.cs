@@ -7,13 +7,15 @@ using Model;
 
 namespace DataAccessLayer
 {
-    public interface IRepository<T> where T : IDomainObject
-    {
-        void Add(T entity);
-        void Delete(Guid id);
-        IEnumerable<T> ReadAll();
-        T ReadById(Guid id);
-        void Update(T entity);
+    public interface IRepository<T> : IReadRepository<T>, IWriteRepository<T> where T : IDomainObject
+    { 
+        //void Add(T entity);
+        //void Delete(Guid id);
+        //IEnumerable<T> ReadAll();
+        //T ReadById(Guid id);
+        //void Update(T entity);
+
+        // Тело интерфейса теперь пустое, так как все методы унаследованы
     }
 
 }
