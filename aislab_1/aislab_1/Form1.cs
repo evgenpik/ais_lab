@@ -87,19 +87,19 @@ namespace aislab_1
         {
 
             allGames = logic.GetAllGames();
-            if (_cachedPlatforms == null)
-            {
-                _cachedPlatforms = logic.GetAllPlatforms().ToList();
-            }
-            var platformDictionary = _cachedPlatforms.ToDictionary(p => p.Id);
+            //if (_cachedPlatforms == null)
+            //{
+            //    _cachedPlatforms = logic.GetAllPlatforms().ToList();
+            //}
+            //var platformDictionary = _cachedPlatforms.ToDictionary(p => p.Id);
 
-            foreach (var game in allGames)
-            {
-                if (platformDictionary.TryGetValue(game.PlatformId, out Platform platform))
-                {
-                    game.Platform = platform;
-                }
-            }
+            //foreach (var game in allGames)
+            //{
+            //    if (platformDictionary.TryGetValue(game.PlatformId, out Platform platform))
+            //    {
+            //        game.Platform = platform;
+            //    }
+            //}
 
             gamesBinding.DataSource = allGames;
             if (dataGridView1.Rows.Count > 0)
@@ -301,7 +301,7 @@ namespace aislab_1
 
         private void buttonAddPlatform_Click(object sender, EventArgs e)
         {
-            string newName = textBoxPlatformName.Text;
+            string newName = textBoxPlatformSearch.Text;
 
             if (logic.TryAddPlatform(newName))
             {
@@ -314,12 +314,38 @@ namespace aislab_1
                 comboBox_Platform.DisplayMember = "Name";
                 comboBox_Platform.ValueMember = "Id";
 
-                textBoxPlatformName.Clear();
+                textBoxPlatformSearch.Clear();
             }
             else
             {
                 MessageBox.Show("Не удалось добавить платформу. Возможно, она уже существует или имя пустое.");
             }
+        }
+
+        private void btnSearchByPlatform_Click(object sender, EventArgs e)
+        {
+            string platformName = txtPlatformSearch.Text;
+            if (string.IsNullOrEmpty(platformName))
+            {
+                MessageBox.Show("Пожалуйста, введите имя платформы для поиска.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var foundGames = logic.FindGamesOnPlatformByName(platformName);
+
+            if (!foundGames.Any())
+            {
+                MessageBox.Show($"Игры для платформы '{platformName}' не найдены.", "Результат поиска", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            gamesBinding.DataSource = foundGames;
+
+            if (dataGridView1.Rows.Count > 0)
+            {
+                dataGridView1.ClearSelection();
+            }
+
         }
     }
 }

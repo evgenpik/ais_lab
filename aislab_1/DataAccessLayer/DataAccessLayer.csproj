@@ -123,6 +123,8 @@
     <Compile Include="AppDbContext.cs" />
     <Compile Include="DapperGameRepository.cs" />
     <Compile Include="EntityRepository.cs" />
+    <Compile Include="GameRepository.cs" />
+    <Compile Include="IGameRepository.cs" />
     <Compile Include="IPlatformRepository.cs" />
     <Compile Include="IReadRepository.cs" />
     <Compile Include="IRepository.cs" />

@@ -27,7 +27,8 @@ namespace ConsoleApp
                 "4.Удалить игру\n" +
                 "5.Группировать по жанрам\n" +
                 "6.Отсортировать по платформе и рейтингу\n" +
-                "7.Добавить платформу\n");
+                "7.Добавить платформу\n" +
+                "8.Поиск игр по названию платформы");
 
                 switch (Console.ReadLine())
                 {
@@ -67,7 +68,7 @@ namespace ConsoleApp
                         Console.WriteLine("\n---Список ваших игр и их свойства---");
 
                         var allGames = logic.GetAllGames();
-                        var allPlatforms = logic.GetAllPlatforms().ToList();
+                        //var allPlatforms = logic.GetAllPlatforms().ToList();
 
                         if (!allGames.Any())
                         {
@@ -76,15 +77,15 @@ namespace ConsoleApp
                         else
                         {
                             // создаем словарь для быстрого поиска платформы по ее id
-                            var platformDictionary = allPlatforms.ToDictionary(p => p.Id);
+                            //var platformDictionary = allPlatforms.ToDictionary(p => p.Id);
 
                             foreach (var game in allGames)
                             {
-                                string platformName = "Неизвестно";
-                                if (platformDictionary.ContainsKey(game.PlatformId))
-                                {
-                                    platformName = platformDictionary[game.PlatformId].Name;
-                                }
+                                string platformName = game.Platform?.Name??"Неизвестно";
+                                //if (platformDictionary.ContainsKey(game.PlatformId))
+                                //{
+                                //    platformName = platformDictionary[game.PlatformId].Name;
+                                //}
 
                                 Console.WriteLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {platformName} | Рейтинг: {game.Rating}/10");
                             }
@@ -246,6 +247,41 @@ namespace ConsoleApp
                         else
                         {
                             Console.WriteLine("\n--- Не удалось добавить платформу. Возможно, она уже существует или введено пустое имя. ---\n");
+                        }
+                        break;
+
+                    case "8":
+
+                        while (true)
+                        {
+                            Console.Clear();
+                            Console.WriteLine("\n---Поиск игр по названию платформы---");
+                            Console.WriteLine("Введите название платформы для поиска (или введите 'exit' для выхода в главное меню).");
+
+
+                            string platformNameSearch = GetValidString("> ");
+
+                            if (platformNameSearch.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                            {
+                                break;
+                            }
+
+                            var foundGames = logic.FindGamesOnPlatformByName(platformNameSearch);
+
+                            if (!foundGames.Any())
+                            {
+                                Console.WriteLine($"\nИгры на платформе '{platformNameSearch}' не найдены.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"\nНайденные игры на платформе '{platformNameSearch}':");
+                                foreach (var game in foundGames)
+                                {
+                                    Console.WriteLine($"- {game.Title} (Рейтинг: {game.Rating}/10)");
+                                }
+                            }
+                            Console.WriteLine("\nНажмите Enter, чтобы выполнить новый поиск...");
+                            Console.ReadLine();
                         }
                         break;
 

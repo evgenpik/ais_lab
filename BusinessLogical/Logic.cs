@@ -10,16 +10,17 @@ namespace BusinessLogical
 {
     public class Logic 
     {
-        private readonly IRepository<Game> repository;
+        //private readonly IRepository<Game> repository;
+        private readonly IGameRepository gameRepository;
         private readonly IPlatformRepository platformRepository;
 
-
+            
         //высокоуровневый код (Logic) зависит от абстракций,
         //а выбор конкретных зависимостей делегируется контейнеру внедрения зависимостей SimpleConfigModule.
-        public Logic(IRepository<Game> repo, IPlatformRepository platform_repo)
+        public Logic(IGameRepository game_repo, IPlatformRepository platform_repo)
         {
             
-            repository = repo;
+            gameRepository = game_repo;
             platformRepository = platform_repo;
         }
         public IEnumerable<Platform> GetAllPlatforms()
@@ -50,7 +51,7 @@ namespace BusinessLogical
                 Rating = rating
             };
 
-            repository.Add(game);
+            gameRepository.Add(game);
         }
 
 
@@ -60,7 +61,8 @@ namespace BusinessLogical
         public List<Game> GetAllGames()
         {
             // Просим у репозитория все игры и превращаем результат в List<Game>.
-            return repository.ReadAll().ToList();
+            //return gameRepository.ReadAll().ToList();
+            return gameRepository.GetWithAllPlatforms().ToList();
         }
 
       
@@ -74,7 +76,7 @@ namespace BusinessLogical
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
         public bool ChangeGame(Guid id, string newTtile, int newRating, Guid newPlatformId, string newDeveloper, Genre newGenre)
         {
-            Game gameChange = repository.ReadById(id);
+            Game gameChange = gameRepository.ReadById(id);
 
             if (gameChange != null)
             {
@@ -83,7 +85,7 @@ namespace BusinessLogical
                 gameChange.Developer = newDeveloper;
                 gameChange.PlatformId = newPlatformId;
                 gameChange.GameGenre = newGenre;
-                repository.Update(gameChange);
+                gameRepository.Update(gameChange);
                 return true;
             }
             else
@@ -98,7 +100,7 @@ namespace BusinessLogical
         /// <returns>True, если игра удалена. False, если что-то пошло не так</returns>
         public bool DeleteGame(Guid id)
         {
-            repository.Delete(id);
+            gameRepository.Delete(id);
             return true;
 
         }
@@ -111,7 +113,7 @@ namespace BusinessLogical
 
         public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
-            var allGames = repository.ReadAll();
+            var allGames = gameRepository.ReadAll();
             return allGames.GroupBy(game => game.GameGenre);
         }
 
@@ -119,7 +121,7 @@ namespace BusinessLogical
 
         public List<Game> GetGamesByPlatform(Guid platformId)
         {
-            return repository.ReadAll()
+            return gameRepository.ReadAll()
                 .Where(game => game.PlatformId == platformId)
                 .ToList();
         }
@@ -133,8 +135,10 @@ namespace BusinessLogical
         /// то есть это гибкий метод для более сложной фильтрации который как раз демонстрирует принцип Open/Closed, 
         public List<Game> GetGamesByFilter(Func<Game, bool> filter)
         {
-            return repository.ReadAll().Where(filter).ToList();
+            return gameRepository.ReadAll().Where(filter).ToList();
         }
+
+
         public bool TryAddPlatform(string platformName)
         {
             if (string.IsNullOrWhiteSpace(platformName))
@@ -155,6 +159,11 @@ namespace BusinessLogical
             };
             platformRepository.Add(newPlatform);
             return true;
+        }
+
+        public List<Game> FindGamesOnPlatformByName(string platformName)
+        {
+            return gameRepository.GetgamesByPlatformName(platformName).ToList();
         }
     }
 }

@@ -14,7 +14,9 @@ namespace BusinessLogical
         public override void Load()
         {
             //когда кто-то просит IRepository<Game> создается экземпляр нужной реализации один на все приложение
-            Bind<IRepository<Game>>().To<EntityRepository<Game>>().InSingletonScope();
+            //Bind<IRepository<Game>>().To<EntityRepository<Game>>().InSingletonScope();
+
+            Bind<IGameRepository>().To<GameRepository>().InSingletonScope();
 
             Bind<IPlatformRepository>().To<PlatformRepository>().InSingletonScope();
             //Bind<IRepository<Game>>().To<DapperGameRepository>().InSingletonScope();
