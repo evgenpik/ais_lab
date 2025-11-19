@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Ninject.Modules;
 using DataAccessLayer;
 using Model;
+using Shared;
 namespace BusinessLogical
 
 {
@@ -23,6 +24,10 @@ namespace BusinessLogical
 
             //то же самое: если кто-то просит объект Logic, контейнер создает его сам одним экземпляром на все приложение
             Bind<Logic>().ToSelf().InSingletonScope();
+            //оборачиваем Logic в адаптер GameService, который предоставляет event-driven интерфейс
+            //тайлер исчез 
+            Bind<IGameService>().To<GameService>().InSingletonScope();
+
         }
     }
 }
