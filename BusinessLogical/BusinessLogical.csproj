@@ -97,6 +97,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameService.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="SimpleConfigModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\aislab_1\DataAccessLayer\DataAccessLayer.csproj">
       <Project>{707ef7ad-f6d3-4178-b9a6-4f7f408fe5f4}</Project>
       <Name>DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\aislab_1\Shared\Shared.csproj">
+      <Project>{590bafdb-dc6a-4e78-be1e-53cc82d99b0d}</Project>
+      <Name>Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{8223fd3e-2030-4098-9bbf-0114aba23720}</Project>

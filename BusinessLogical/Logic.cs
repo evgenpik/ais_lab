@@ -76,6 +76,7 @@ namespace BusinessLogical
         /// <returns>True, если сведения изменены. False, если что-то пошло не так</returns>
         public bool ChangeGame(Guid id, string newTtile, int newRating, Guid newPlatformId, string newDeveloper, Genre newGenre)
         {
+            //получаем игру из репозитория 
             Game gameChange = gameRepository.ReadById(id);
 
             if (gameChange != null)
@@ -110,7 +111,7 @@ namespace BusinessLogical
             platformRepository.Delete(id);
             return true;
         }
-
+       
         public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
             var allGames = gameRepository.ReadAll();
