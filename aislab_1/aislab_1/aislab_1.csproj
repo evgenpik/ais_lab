@@ -155,6 +155,14 @@
       <Project>{707ef7ad-f6d3-4178-b9a6-4f7f408fe5f4}</Project>
       <Name>DataAccessLayer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Presenter\Presenter.csproj">
+      <Project>{30dcd5b5-d152-45cb-abe3-77a85d5fd1a2}</Project>
+      <Name>Presenter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{590bafdb-dc6a-4e78-be1e-53cc82d99b0d}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

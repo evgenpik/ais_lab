@@ -114,7 +114,8 @@ namespace BusinessLogical
        
         public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
-            var allGames = gameRepository.ReadAll();
+            var allGames = gameRepository.GetWithAllPlatforms();
+            //var allGames = gameRepository.ReadAll();
             return allGames.GroupBy(game => game.GameGenre);
         }
 
@@ -122,7 +123,8 @@ namespace BusinessLogical
 
         public List<Game> GetGamesByPlatform(Guid platformId)
         {
-            return gameRepository.ReadAll()
+            return gameRepository.GetWithAllPlatforms()
+            //return gameRepository.ReadAll()
                 .Where(game => game.PlatformId == platformId)
                 .ToList();
         }

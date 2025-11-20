@@ -5,6 +5,7 @@ using Ninject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shared;
 
 namespace ConsoleApp
 {
@@ -16,7 +17,24 @@ namespace ConsoleApp
         {
             
             kernel = new StandardKernel(new SimpleConfigModule());
-            var logic = kernel.Get<Logic>();
+
+            var service = kernel.Get<IGameService>();
+
+            //Подписываемся на события для обратной связи
+            //Теперь нам не нужно писать Console.WriteLine об успехе/ошибке в каждом case
+            service.SuccessOccurred += (sender, message) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n[УСПЕХ] {message}\n");
+                Console.ResetColor();
+            };
+            service.ErrorOccurred += (sender, message) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"\n[ОШИБКА] {message}\n");
+                Console.ResetColor();
+            };
+
 
             while (true)
             {
@@ -26,10 +44,11 @@ namespace ConsoleApp
                 "3.Изменить игру\n" +
                 "4.Удалить игру\n" +
                 "5.Группировать по жанрам\n" +
-                "6.Отсортировать по платформе и рейтингу\n" +
+                "6.Отсортировать по платформе\n" + 
                 "7.Добавить платформу\n" +
                 "8.Поиск игр по названию платформы");
 
+                // Все вызовы logic заменяем на service
                 switch (Console.ReadLine())
                 {
                     case "1":
@@ -40,53 +59,40 @@ namespace ConsoleApp
                         int currentYear = DateTime.Now.Year;
                         int releaseYear = GetValidInt($"Введите год выпуска (1970-{currentYear}): ", 1970, currentYear);
 
-                        
-                        var platforms = logic.GetAllPlatforms().ToList();
+                        var platforms = service.GetAllPlatforms().ToList();
                         if (platforms.Count == 0)
                         {
                             Console.WriteLine("Нет доступных платформ!");
                             break;
                         }
-
                         Console.WriteLine("Доступные платформы:");
                         for (int i = 0; i < platforms.Count; i++)
                         {
-                            Console.WriteLine($"  {i + 1}. {platforms[i].Name} (ID: {platforms[i].Id})");
+                            Console.WriteLine($"  {i + 1}. {platforms[i].Name}");
                         }
-
                         Console.Write("Выберите платформу (номер): ");
                         int platformChoice = GetValidInt("", 1, platforms.Count) - 1;
-                        Guid platformId = platforms[platformChoice].Id;  
+                        Guid platformId = platforms[platformChoice].Id;
 
                         int rating = GetValidInt("Введите ваш рейтинг (1-10): ", 1, 10);
-                        logic.AddGame(title, genre, developer, releaseYear, platformId, rating);
-                        Console.WriteLine("\nИгра успешно добавлена!\n");
+
+                        service.AddGame(title, genre, developer, releaseYear, platformId, rating);
+                        // Сообщение об успехе выведется автоматически через событие
                         break;
 
                     case "2":
                         Console.Clear();
                         Console.WriteLine("\n---Список ваших игр и их свойства---");
-
-                        var allGames = logic.GetAllGames();
-                        //var allPlatforms = logic.GetAllPlatforms().ToList();
-
+                        var allGames = service.GetAllGames();
                         if (!allGames.Any())
                         {
                             Console.WriteLine("У вас пока нет добавленных игр");
                         }
                         else
                         {
-                            // создаем словарь для быстрого поиска платформы по ее id
-                            //var platformDictionary = allPlatforms.ToDictionary(p => p.Id);
-
                             foreach (var game in allGames)
                             {
-                                string platformName = game.Platform?.Name??"Неизвестно";
-                                //if (platformDictionary.ContainsKey(game.PlatformId))
-                                //{
-                                //    platformName = platformDictionary[game.PlatformId].Name;
-                                //}
-
+                                string platformName = game.Platform?.Name ?? "Неизвестно";
                                 Console.WriteLine($"Название: {game.Title} | Жанр: {game.GameGenre} | Платформа: {platformName} | Рейтинг: {game.Rating}/10");
                             }
                         }
@@ -96,97 +102,64 @@ namespace ConsoleApp
                     case "3":
                         Console.Clear();
                         Console.WriteLine("Список игр для выбора:");
-                        var gamesToSelectFrom = logic.GetAllGames();
+                        var gamesToSelectFrom = service.GetAllGames();
                         if (!gamesToSelectFrom.Any())
                         {
                             Console.WriteLine("У вас нет добавленных игр.");
                             break;
                         }
-
                         foreach (var game in gamesToSelectFrom)
                         {
                             Console.WriteLine($"ID: {game.Id} | Название: {game.Title}");
                         }
-
                         Console.WriteLine("Введите ID игры, которую хотите изменить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForChange))
                         {
                             string newTitle = GetValidString("Введите новое название: ");
-                            int newRating = GetValidInt("Введите новый рейтинг: ", 0, 10);
-
-
-                            var platformsForChange = logic.GetAllPlatforms().ToList();
-                            if (platformsForChange.Count == 0)
-                            {
-                                Console.WriteLine("Нет доступных платформ!");
-                                break;
-                            }
-
+                            int newRating = GetValidInt("Введите новый рейтинг: ", 1, 10);
+                            var platformsForChange = service.GetAllPlatforms().ToList();
                             Console.WriteLine("Доступные платформы:");
                             for (int i = 0; i < platformsForChange.Count; i++)
                             {
                                 Console.WriteLine($"  {i + 1}. {platformsForChange[i].Name}");
                             }
-
                             Console.Write("Выберите новую платформу (номер): ");
                             int platformChoiceChange = GetValidInt("", 1, platformsForChange.Count) - 1;
-                            Guid newPlatformId = platformsForChange[platformChoiceChange].Id; 
-
+                            Guid newPlatformId = platformsForChange[platformChoiceChange].Id;
                             string newDeveloper = GetValidString("Введите нового разработчика: ");
                             Genre newGenre = GetValidGenre("Введите новый жанр: ");
 
-                            if (logic.ChangeGame(idForChange, newTitle, newRating, newPlatformId, newDeveloper, newGenre))
-                            {
-                                Console.WriteLine("\nИгра успешно изменена!\n");
-                            }
-                            else
-                            {
-                                Console.WriteLine("\nИгра с таким ID не найдена.\n");
-                            }
+                            // Используем метод UpdateGame из интерфейса
+                            service.UpdateGame(idForChange, newTitle, newRating, newPlatformId, newDeveloper, newGenre);
                         }
-                        else
-                        {
-                            Console.WriteLine("\nНекорректный формат ID.\n");
-                        }
+                        else Console.WriteLine("\nНекорректный формат ID.\n");
                         break;
 
                     case "4":
                         Console.Clear();
                         Console.WriteLine("Список игр для выбора:");
-                        var gamesToDeleteFrom = logic.GetAllGames();
+                        var gamesToDeleteFrom = service.GetAllGames();
                         if (!gamesToDeleteFrom.Any())
                         {
                             Console.WriteLine("У вас нет добавленных игр.");
                             break;
                         }
-
                         foreach (var game in gamesToDeleteFrom)
                         {
                             Console.WriteLine($"ID: {game.Id} | Название: {game.Title}");
                         }
-
                         Console.WriteLine("Введите ID игры, которую хотите удалить: ");
                         if (Guid.TryParse(Console.ReadLine(), out Guid idForDelete))
                         {
-                            if (logic.DeleteGame(idForDelete))
-                            {
-                                Console.WriteLine("\nИгра успешно удалена!\n");
-                            }
-                            else
-                            {
-                                Console.WriteLine("\nИгра с таким ID не найдена.\n");
-                            }
+                            service.DeleteGame(idForDelete);
                         }
-                        else
-                        {
-                            Console.WriteLine("\nНекорректный формат ID.\n");
-                        }
+                        else Console.WriteLine("\nНекорректный формат ID.\n");
                         break;
 
                     case "5":
                         Console.Clear();
                         Console.WriteLine("\n--- Игры, сгруппированные по жанрам ---");
-                        var groupedGames = logic.GetGamesGroupedByGenre();
+                        var groupedGames = service.GetGamesGroupedByGenre();
                         foreach (var group in groupedGames)
                         {
                             Console.WriteLine($"\n--- Жанр: {group.Key} ---");
@@ -200,27 +173,23 @@ namespace ConsoleApp
 
                     case "6":
                         Console.Clear();
-
-                        var platformsForFilter = logic.GetAllPlatforms().ToList();
+                        var platformsForFilter = service.GetAllPlatforms().ToList();
                         if (platformsForFilter.Count == 0)
                         {
                             Console.WriteLine("Нет доступных платформ!");
                             break;
                         }
-
                         Console.WriteLine("Доступные платформы для фильтрации:");
                         for (int i = 0; i < platformsForFilter.Count; i++)
                         {
                             Console.WriteLine($"  {i + 1}. {platformsForFilter[i].Name}");
                         }
-
                         Console.Write("Выберите платформу (номер): ");
                         int platformChoiceFilter = GetValidInt("", 1, platformsForFilter.Count) - 1;
-                        Guid platformIdFilter = platformsForFilter[platformChoiceFilter].Id;  
+                        Guid platformIdFilter = platformsForFilter[platformChoiceFilter].Id;
 
                         Console.WriteLine($"\n--- Игры на платформе '{platformsForFilter[platformChoiceFilter].Name}' ---");
-                        var filteredGames = logic.GetGamesByPlatform(platformIdFilter);  
-
+                        var filteredGames = service.GetGamesByPlatform(platformIdFilter);
                         if (!filteredGames.Any())
                         {
                             Console.WriteLine($"Игры не найдены.");
@@ -234,40 +203,22 @@ namespace ConsoleApp
                         }
                         Console.WriteLine("-------------------------------------------\n");
                         break;
+
                     case "7":
                         Console.Clear();
                         Console.WriteLine("\n--- Добавление новой платформы ---");
-
                         string newPlatformName = GetValidString("Введите название новой платформы: ");
-                        if (logic.TryAddPlatform(newPlatformName))
-                        {
-
-                            Console.WriteLine("\n--- Платформа успешно добавлена! ---\n");
-                        }
-                        else
-                        {
-                            Console.WriteLine("\n--- Не удалось добавить платформу. Возможно, она уже существует или введено пустое имя. ---\n");
-                        }
+                        service.TryAddPlatform(newPlatformName);
                         break;
 
                     case "8":
-
                         while (true)
                         {
                             Console.Clear();
                             Console.WriteLine("\n---Поиск игр по названию платформы---");
-                            Console.WriteLine("Введите название платформы для поиска (или введите 'exit' для выхода в главное меню).");
-
-
+                            Console.Write("Введите название платформы для поиска / (или введите 'exit' для выхода в главное меню).");
                             string platformNameSearch = GetValidString("> ");
-
-                            if (platformNameSearch.Equals("exit", StringComparison.OrdinalIgnoreCase))
-                            {
-                                break;
-                            }
-
-                            var foundGames = logic.FindGamesOnPlatformByName(platformNameSearch);
-
+                            var foundGames = service.FindGamesByPlatformName(platformNameSearch);
                             if (!foundGames.Any())
                             {
                                 Console.WriteLine($"\nИгры на платформе '{platformNameSearch}' не найдены.");
@@ -284,14 +235,11 @@ namespace ConsoleApp
                             Console.ReadLine();
                         }
                         break;
-
                 }
             }
         }
 
-        /// <summary>
-        /// Запрашивает у пользователя строку, пока он не введет непустое значение.
-        /// </summary>
+        #region Служебные методы (без изменений)
         static string GetValidString(string prompt)
         {
             string input;
@@ -307,9 +255,6 @@ namespace ConsoleApp
             }
         }
 
-        /// <summary>
-        /// Запрашивает у пользователя число в заданном диапазоне.
-        /// </summary>
         static int GetValidInt(string prompt, int min, int max)
         {
             int result;
@@ -326,9 +271,6 @@ namespace ConsoleApp
             }
         }
 
-        /// <summary>
-        /// Запрашивает у пользователя жанр, пока он не введет существующий.
-        /// </summary>
         static Genre GetValidGenre(string prompt)
         {
             Genre result;
@@ -344,5 +286,7 @@ namespace ConsoleApp
                 Console.WriteLine("Ошибка: Такого жанра не существует. Попробуйте снова.");
             }
         }
+        #endregion
+       
     }
 }
