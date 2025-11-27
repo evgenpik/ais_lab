@@ -12,6 +12,7 @@ using Model;
 using System.Configuration;
 using DataAccessLayer;
 using Shared;
+using Controller;
 
 
 namespace aislab_1
@@ -21,137 +22,136 @@ namespace aislab_1
     /// Является пассивным представлением (Passive View), которое только отображает данные
     /// и передает действия пользователя в Presenter через события
     /// </summary>
-    public partial class MainForm : Form, IGameView
+    public partial class MainForm : Form
     {
+        private GameController _controller;
+        private IGameService _service;
 
         private DataGridViewRow selectedRow = null;
         private BindingSource gamesBinding = new BindingSource();
         private List<Platform> _cachedPlatforms;
 
-        #region События IGameView
-
-        /// <summary>
-        /// События, возникающее при запросе на добавление, удаление, обновление, фильтрацию, группировку, 
-        /// поиск по платформе, сброс, добавление новой платформы, полное обновление данных 
-        /// выбранной игры
-        /// </summary>
-        public event EventHandler AddGameRequested;
-        public event EventHandler<Guid> DeleteGameRequested;
-        public event EventHandler<GameUpdateEventArgs> UpdateGameRequested;
-        public event EventHandler<Guid> FilterByPlatformRequested;
-        public event EventHandler<string> FilterByPlatformNameRequested;
-        public event EventHandler GroupByGenreRequested;
-        public event EventHandler ResetFilterRequested;
-        public event EventHandler<string> AddPlatformRequested;
-        public event EventHandler RefreshRequested;
-
-        #endregion
 
         public MainForm()
         {
             InitializeComponent();
             this.Load += Form1_Load;
         }
+        public void Configure(GameController controller, IGameService service)
+        {
+            _controller = controller;
+            _service = service;
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             SetupInputControls();
             SetupDataGridView();
-            RefreshRequested?.Invoke(this, EventArgs.Empty);
+            RefreshData();
         }
 
-        #region Реализация IGameView
-
-        // Свойства для получения данных из UI
-        public string GameTitle => textBox_Title.Text;
-        public Genre SelectedGenre => (Genre)comboBox_Genre.SelectedItem;
-        public string Developer => textBox_Developer.Text;
-        public int ReleaseYear => (int)numericUpDown_ReleaseYear.Value;
-        public Guid SelectedPlatformId => (Guid)comboBox_Platform.SelectedValue;
-        public int Rating => (int)numericUpDown_Rating.Value;
-
-        /// <summary>
-        /// Отображает переданный список игр в таблице DataGridView
-        /// </summary>
-        /// <param name="games"> Коллекция игр для отображения </param>
-        public void ShowGames(IEnumerable<Game> games)
+        private void RefreshData()
         {
-            gamesBinding.DataSource = games.ToList();
-            if (dataGridView1.Rows.Count > 0)
+            try
             {
-                dataGridView1.ClearSelection();
+                // 1. Получаем список игр
+                var games = _service.GetAllGames();
+                gamesBinding.DataSource = games.ToList();
+
+                // 2. Получаем список платформ
+                var platforms = _service.GetAllPlatforms().ToList();
+                _cachedPlatforms = platforms;
+
+                // 3. Обновляем выпадающий список платформ
+                // (сбрасываем DataSource, чтобы обновилось содержимое)
+                Guid? selectedId = null;
+                if (comboBox_Platform.SelectedValue is Guid id) selectedId = id;
+
+                comboBox_Platform.DataSource = null;
+                comboBox_Platform.DataSource = _cachedPlatforms;
+                comboBox_Platform.DisplayMember = "Name";
+                comboBox_Platform.ValueMember = "Id";
+
+                // Пытаемся восстановить выбор
+                if (selectedId.HasValue && _cachedPlatforms.Any(p => p.Id == selectedId.Value))
+                {
+                    comboBox_Platform.SelectedValue = selectedId.Value;
+                }
+
+                // 4. Сбрасываем выделение в таблице
+                if (dataGridView1.Rows.Count > 0)
+                {
+                    dataGridView1.ClearSelection();
+                }
+                selectedRow = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        /// <summary>
-        /// Заполняет выпадающий список платформ переданными данными
-        /// </summary>
-        /// <param name="platforms"> Коллекция платформ для отображения </param>
-        public void ShowPlatforms(IEnumerable<Platform> platforms)
-        {
-            _cachedPlatforms = platforms.ToList();
-            comboBox_Platform.DataSource = null;
-            comboBox_Platform.DataSource = _cachedPlatforms;
-            comboBox_Platform.DisplayMember = "Name";
-            comboBox_Platform.ValueMember = "Id";
-        }
 
-        /// <summary>
-        /// Отображает диалоговое окно с сообщением об ошибке
-        /// </summary>
-        /// <param name="message"> Текст ошибки</param>
-        public void ShowError(string message)
-        {
-            MessageBox.Show(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        /// <summary>
-        /// Ну кароч тож самое ток информация
-        /// </summary>
-        /// <param name="message"></param>
-        public void ShowSuccess(string message)
-        {
-            MessageBox.Show(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        public void ClearInputFields()
-        {
-            textBox_Title.Clear();
-            textBox_Developer.Clear();
-            if (comboBox_Genre.Items.Count > 0) comboBox_Genre.SelectedIndex = 0;
-            if (comboBox_Platform.Items.Count > 0) comboBox_Platform.SelectedIndex = 0;
-            numericUpDown_ReleaseYear.Value = DateTime.Now.Year;
-            numericUpDown_Rating.Value = 1;
-            dataGridView1.ClearSelection();
-            selectedRow = null;
-        }
-        public void RefreshUI() { }
-        #endregion
-
-        #region Генерация событий из UI
         private void Button_Add_Click(object sender, EventArgs e)
         {
-            AddGameRequested?.Invoke(this, EventArgs.Empty);
+            try
+            {
+                // 1. View собирает данные
+                string title = textBox_Title.Text;
+                Genre genre = (Genre)comboBox_Genre.SelectedItem;
+                string dev = textBox_Developer.Text;
+                int year = (int)numericUpDown_ReleaseYear.Value;
+                Guid platId = (Guid)comboBox_Platform.SelectedValue;
+                int rating = (int)numericUpDown_Rating.Value;
+
+                if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(dev))
+                {
+                    MessageBox.Show("Название и разработчик не могут быть пустыми!");
+                    return;
+                }
+
+                // 2. View вызывает Контроллер ("Сделай изменение")
+                _controller.AddGame(title, genre, dev, year, platId, rating);
+
+                // 3. View сама обновляет себя ("Покажи результат")
+                RefreshData();
+                ClearInputFields();
+                MessageBox.Show("Игра успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void Button_Change_Click(object sender, EventArgs e)
         {
             if (selectedRow?.DataBoundItem is Game selectedGame)
             {
-                var args = new GameUpdateEventArgs
+                try
                 {
-                    Id = selectedGame.Id,
-                    Title = this.GameTitle,
-                    Rating = this.Rating,
-                    PlatformId = this.SelectedPlatformId,
-                    Developer = this.Developer,
-                    Genre = this.SelectedGenre
-                };
-                UpdateGameRequested?.Invoke(this, args);
+                    // 1. Контроллер обновляет
+                    _controller.UpdateGame(
+                        selectedGame.Id,
+                        textBox_Title.Text,
+                        (int)numericUpDown_Rating.Value,
+                        (Guid)comboBox_Platform.SelectedValue,
+                        textBox_Developer.Text,
+                        (Genre)comboBox_Genre.SelectedItem
+                    );
+
+                    // 2. View обновляется
+                    RefreshData();
+                    MessageBox.Show("Игра обновлена!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка обновления: {ex.Message}");
+                }
             }
-            else 
-            { 
-                ShowError("Пожалуйста, выберите игру для изменения."); 
+            else
+            {
+                MessageBox.Show("Выберите игру для изменения.");
             }
         }
 
@@ -160,58 +160,88 @@ namespace aislab_1
         {
             if (selectedRow?.DataBoundItem is Game selectedGame)
             {
-                if (MessageBox.Show("Вы уверены?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    DeleteGameRequested?.Invoke(this, selectedGame.Id);
+                if (MessageBox.Show("Вы уверены, что хотите удалить эту игру?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    try
+                    {
+                        // 1. Контроллер удаляет
+                        _controller.DeleteGame(selectedGame.Id);
+
+                        // 2. View обновляется
+                        RefreshData();
+                        ClearInputFields();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении: {ex.Message}");
+                    }
+                }
             }
             else
             {
-                ShowError("Пожалуйста, выберите игру для удаления.");
+                MessageBox.Show("Выберите игру для удаления.");
             }
         }
 
         private void Button_Filter_Click(object sender, EventArgs e)
         {
-            FilterByPlatformRequested?.Invoke(this, SelectedPlatformId);
+            if (comboBox_Platform.SelectedValue != null)
+            {
+                Guid platformId = (Guid)comboBox_Platform.SelectedValue;
+                // Прямой запрос к сервису
+                var filtered = _service.GetGamesByPlatform(platformId);
+                gamesBinding.DataSource = filtered.ToList();
+            }
         }
 
         private void Button_Group_Click(object sender, EventArgs e)
         {
-            GroupByGenreRequested?.Invoke(this, EventArgs.Empty);
+            // Сортировка на стороне клиента или запрос к сервису
+            var games = _service.GetAllGames();
+            var sorted = games.OrderBy(g => g.GameGenre).ThenBy(g => g.Title).ToList();
+            gamesBinding.DataSource = sorted;
         }
 
         private void Button_Reset_Click(object sender, EventArgs e)
         {
-            ResetFilterRequested?.Invoke(this, EventArgs.Empty);
+            RefreshData(); // Сброс к полному списку
         }
 
         private void buttonUpdate_Click(object sender, EventArgs e)
         {
-            RefreshRequested?.Invoke(this, EventArgs.Empty);
+            RefreshData();
         }
 
         private void buttonAddPlatform_Click(object sender, EventArgs e)
         {
-            AddPlatformRequested?.Invoke(this, textBoxPlatformSearch.Text);
-            textBoxPlatformSearch.Clear();
+            string newPlatform = textBoxPlatformSearch.Text;
+            if (string.IsNullOrWhiteSpace(newPlatform)) return;
+
+            try
+            {
+                _controller.AddPlatform(newPlatform);
+                RefreshData(); // Обновит список платформ в комбобоксе
+                textBoxPlatformSearch.Clear();
+                MessageBox.Show("Платформа добавлена!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+            }
         }
 
         private void btnSearchByPlatform_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtPlatformSearch.Text))
+            string name = txtPlatformSearch.Text;
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                ShowError("Введите имя платформы.");
+                var found = _service.FindGamesByPlatformName(name);
+                gamesBinding.DataSource = found.ToList();
             }
-            else
-            {
-                FilterByPlatformNameRequested?.Invoke(this, txtPlatformSearch.Text);
-            }
-           
-
-
         }
-        #endregion
+        
 
-        #region Настройка и служебные методы UI
+        
         private void SetupInputControls()
         {
             comboBox_Genre.DataSource = Enum.GetValues(typeof(Genre));
@@ -253,17 +283,33 @@ namespace aislab_1
                     numericUpDown_Rating.Value = selectedGame.Rating;
                 }
             }
-            else selectedRow = null;
+            else
+            {
+                selectedRow = null;
+                ClearInputFields();
+            }
         }
         private void DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.ColumnIndex == 3 && e.Value is Platform platform) { e.Value = platform.Name; e.FormattingApplied = true; }
+            if (e.ColumnIndex == 3 && e.Value is Platform platform) 
+            { 
+                e.Value = platform.Name; e.FormattingApplied = true; 
+            }
         }
-        #endregion
+
+        private void ClearInputFields()
+        {
+            textBox_Title.Clear();
+            textBox_Developer.Clear();
+            if (comboBox_Genre.Items.Count > 0) comboBox_Genre.SelectedIndex = 0;
+            if (comboBox_Platform.Items.Count > 0) comboBox_Platform.SelectedIndex = 0;
+            numericUpDown_ReleaseYear.Value = DateTime.Now.Year;
+            numericUpDown_Rating.Value = 1;
+            dataGridView1.ClearSelection();
+            selectedRow = null;
+        }
 
 
-        
     }
 }
-
 

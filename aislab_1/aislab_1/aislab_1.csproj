@@ -151,13 +151,13 @@
       <Project>{8223fd3e-2030-4098-9bbf-0114aba23720}</Project>
       <Name>Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Controller\Controller.csproj">
+      <Project>{df1e61a3-2a57-4f79-a14b-c6ee21729f2d}</Project>
+      <Name>Controller</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj">
       <Project>{707ef7ad-f6d3-4178-b9a6-4f7f408fe5f4}</Project>
       <Name>DataAccessLayer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Presenter\Presenter.csproj">
-      <Project>{30dcd5b5-d152-45cb-abe3-77a85d5fd1a2}</Project>
-      <Name>Presenter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{590bafdb-dc6a-4e78-be1e-53cc82d99b0d}</Project>

@@ -15,13 +15,7 @@ namespace BusinessLogical
         private readonly Logic logic;
 
 
-        //мне просто нравится регионы добавлять)))
-        #region События
-        public event EventHandler<IEnumerable<Game>> GamesLoaded;
-        public event EventHandler<IEnumerable<Platform>> PlatformsLoaded;
-        public event EventHandler<string> ErrorOccurred;
-        public event EventHandler<string> SuccessOccurred;
-        #endregion
+        
 
         public GameService(Logic logic)
         {
@@ -41,16 +35,8 @@ namespace BusinessLogical
         /// <param name="rating"></param>
         public void AddGame(string title, Genre genre, string developer, int releaseYear, Guid platformId, int rating)
         {
-            try
-            {//в общем, презентер подписывается на события этого сервиса и обновляет view в ответ на них
-                logic.AddGame(title, genre, developer, releaseYear, platformId, rating);
-                GamesLoaded?.Invoke(this, logic.GetAllGames());
-                SuccessOccurred?.Invoke(this, "Игра успешно добавлена!");
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-            }
+            logic.AddGame(title, genre, developer, releaseYear, platformId, rating);
+            
         }
 
         /// <summary>
@@ -64,22 +50,8 @@ namespace BusinessLogical
         /// <param name="genre"></param>
         public void UpdateGame(Guid id, string title, int rating, Guid platformId, string developer, Genre genre)
         {
-            try
-            {
-                if (logic.ChangeGame(id, title, rating, platformId, developer, genre))
-                {
-                    GamesLoaded?.Invoke(this, logic.GetAllGames());
-                    SuccessOccurred?.Invoke(this, "Игра успешно обновлена!");
-                }
-                else
-                {
-                    ErrorOccurred?.Invoke(this, "Игра не найдена");
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-            }
+            logic.ChangeGame(id, title, rating, platformId, developer, genre);
+            
         }
 
         /// <summary>
@@ -89,21 +61,9 @@ namespace BusinessLogical
         /// <returns></returns>
         public bool DeleteGame(Guid id)
         {
-            try
-            {
-                var result = logic.DeleteGame(id);
-                if (result)
-                {
-                    GamesLoaded?.Invoke(this, logic.GetAllGames());
-                    SuccessOccurred?.Invoke(this, "Игра успешно удалена!");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return false;
-            }
+            return logic.DeleteGame(id);
+
+           
         }
 
         /// <summary>
@@ -112,15 +72,7 @@ namespace BusinessLogical
         /// <returns>Объект IEnumerable<Game> со всеми играми из источника данных</returns>
         public IEnumerable<Game> GetAllGames()
         {
-            try
-            {
-                return  logic.GetAllGames();
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return new List<Game>();
-            }
+            return logic.GetAllGames();
         }
         /// <summary>
         /// Метод, позволяющий получить игры по идентификатору платформы
@@ -129,15 +81,7 @@ namespace BusinessLogical
         /// <returns>Список игр, удовлетворяющий условию </returns>
         public IEnumerable<Game> GetGamesByPlatform(Guid platformId)
         {
-            try
-            {
-                return logic.GetGamesByPlatform(platformId);
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return new List<Game>();
-            }
+            return logic.GetGamesByPlatform(platformId);
         }
 
         /// <summary>
@@ -147,15 +91,7 @@ namespace BusinessLogical
         /// <returns>Список игр, удовлетворяющий условию</returns>
         public IEnumerable<Game> FindGamesByPlatformName(string platformName)
         {
-            try
-            {
-                return logic.FindGamesOnPlatformByName(platformName);
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return new List<Game>();
-            }
+            return logic.FindGamesOnPlatformByName(platformName);
         }
 
         /// <summary>
@@ -164,15 +100,7 @@ namespace BusinessLogical
         /// <returns>Список игр, сгруппированных по жанру</returns>
         public IEnumerable<IGrouping<Genre, Game>> GetGamesGroupedByGenre()
         {
-            try
-            {
-                return logic.GetGamesGroupedByGenre();
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return new List<IGrouping<Genre, Game>>();
-            }
+            return logic.GetGamesGroupedByGenre();
         }
 
         /// <summary>
@@ -181,15 +109,7 @@ namespace BusinessLogical
         /// <returns>Список доступных платформ</returns>
         public IEnumerable<Platform> GetAllPlatforms()
         {
-            try
-            {
-                return logic.GetAllPlatforms();
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return new List<Platform>();
-            }
+            return logic.GetAllPlatforms();
         }
 
         /// <summary>
@@ -199,21 +119,7 @@ namespace BusinessLogical
         /// <returns>Значение True, если платформа добавлена</returns>
         public bool TryAddPlatform(string name)
         {
-            try
-            {
-                var result = logic.TryAddPlatform(name);
-                if (result)
-                {
-                    PlatformsLoaded?.Invoke(this, logic.GetAllPlatforms());
-                    SuccessOccurred?.Invoke(this, "Платформа добавлена!");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return false;
-            }
+            return logic.TryAddPlatform(name);
         }
         /// <summary>
         /// Метод для удаления платформы по её идентификатору
@@ -222,21 +128,7 @@ namespace BusinessLogical
         /// <returns>Значение True, если удаление прошло успешно</returns>
         public bool DeletePlatform(Guid id)
         {
-            try
-            {
-                var result = logic.DeletePlatform(id);
-                if (result)
-                {
-                    PlatformsLoaded?.Invoke(this, logic.GetAllPlatforms());
-                    SuccessOccurred?.Invoke(this, "Платформа удалена!");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                ErrorOccurred?.Invoke(this, ex.Message);
-                return false;
-            }
+            return logic.DeletePlatform(id);
         }
         #endregion
     }

@@ -8,8 +8,8 @@ using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Presenter;
 using Shared;
+using Controller;
 
 namespace aislab_1
 {
@@ -37,9 +37,18 @@ namespace aislab_1
             /*var repository = new EntityRepository<Game>();
             var logic = new Logic(repository);
             Application.Run(new MainForm(logic));*/
-            var mainForm = new MainForm();
             var gameService = kernel.Get<IGameService>();
-            var presenter = new GamePresenter(mainForm, gameService);
+
+            
+            var controller = new GameController(gameService);
+
+            
+            var mainForm = new MainForm();
+
+            
+            mainForm.Configure(controller, gameService);
+
+            
             Application.Run(mainForm);
 
         }
