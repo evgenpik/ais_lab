@@ -9,3 +9,7 @@
 # Build results
 [Bb]in/
 [Oo]bj/
+
+# Игнорировать базы данных SQL Server
+*.mdf
+*.ldf
