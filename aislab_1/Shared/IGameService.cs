@@ -9,11 +9,6 @@ namespace Shared
 {
     public interface IGameService
     {
-        // события
-        event EventHandler<IEnumerable<Game>> GamesLoaded;
-        event EventHandler<IEnumerable<Platform>> PlatformsLoaded;
-        event EventHandler<string> ErrorOccurred;
-        event EventHandler<string> SuccessOccurred;
 
         // методы работы с играми (просто перенесены из логики)  
         void AddGame(string title, Genre genre, string developer, int releaseYear, Guid platformId, int rating);
