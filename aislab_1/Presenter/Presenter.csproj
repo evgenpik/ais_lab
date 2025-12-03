@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,6 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GamePresenter.cs" />
+    <Compile Include="MVVM\GameDTO.cs" />
+    <Compile Include="MVVM\IView.cs" />
+    <Compile Include="MVVM\MainViewModel.cs" />
+    <Compile Include="MVVM\PlatformDTO.cs" />
+    <Compile Include="MVVM\RelayCommand.cs" />
+    <Compile Include="MVVM\ViewManager.cs" />
+    <Compile Include="MVVM\ViewModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
