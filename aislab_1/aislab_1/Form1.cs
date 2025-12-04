@@ -18,9 +18,10 @@ using Controller;
 namespace aislab_1
 {
     /// <summary>
-    /// Главная форма приложения, реализующая интерфейс IGameView
-    /// Является пассивным представлением (Passive View), которое только отображает данные
-    /// и передает действия пользователя в Presenter через события
+    /// Главная форма
+    /// Реализует паттерн MVC (Active View):
+    /// 1. Отправляет команды Контроллеру (Add, Update, Delete).
+    /// 2. Напрямую запрашивает актуальные данные у Сервиса (Model) для обновления интерфейса.
     /// </summary>
     public partial class MainForm : Form
     {
@@ -37,6 +38,13 @@ namespace aislab_1
             InitializeComponent();
             this.Load += Form1_Load;
         }
+
+        /// <summary>
+        /// Внедряем зависимости в форму (Dependency Injection).
+        /// Вызывается из точки сборки (Program.cs) перед отображением формы.
+        /// </summary>
+        /// <param name="controller">Контроллер для обработки команд.</param>
+        /// <param name="service">Сервис для чтения данных.</param>
         public void Configure(GameController controller, IGameService service)
         {
             _controller = controller;
@@ -47,6 +55,7 @@ namespace aislab_1
         {
             SetupInputControls();
             SetupDataGridView();
+            // View инициирует загрузку данных из Модели
             RefreshData();
         }
 
@@ -54,15 +63,15 @@ namespace aislab_1
         {
             try
             {
-                // 1. Получаем список игр
+                // Получаем список игр
                 var games = _service.GetAllGames();
                 gamesBinding.DataSource = games.ToList();
 
-                // 2. Получаем список платформ
+                // Получаем список платформ
                 var platforms = _service.GetAllPlatforms().ToList();
                 _cachedPlatforms = platforms;
 
-                // 3. Обновляем выпадающий список платформ
+                // Обновляем выпадающий список платформ
                 // (сбрасываем DataSource, чтобы обновилось содержимое)
                 Guid? selectedId = null;
                 if (comboBox_Platform.SelectedValue is Guid id) selectedId = id;
@@ -78,7 +87,7 @@ namespace aislab_1
                     comboBox_Platform.SelectedValue = selectedId.Value;
                 }
 
-                // 4. Сбрасываем выделение в таблице
+                // Сбрасываем выделение в таблице
                 if (dataGridView1.Rows.Count > 0)
                 {
                     dataGridView1.ClearSelection();
@@ -96,7 +105,7 @@ namespace aislab_1
         {
             try
             {
-                // 1. View собирает данные
+                // View собирает данные
                 string title = textBox_Title.Text;
                 Genre genre = (Genre)comboBox_Genre.SelectedItem;
                 string dev = textBox_Developer.Text;
@@ -110,10 +119,10 @@ namespace aislab_1
                     return;
                 }
 
-                // 2. View вызывает Контроллер ("Сделай изменение")
+                // View вызывает Контроллер
                 _controller.AddGame(title, genre, dev, year, platId, rating);
 
-                // 3. View сама обновляет себя ("Покажи результат")
+                // View сама обновляет себя
                 RefreshData();
                 ClearInputFields();
                 MessageBox.Show("Игра успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -130,7 +139,7 @@ namespace aislab_1
             {
                 try
                 {
-                    // 1. Контроллер обновляет
+                    // Контроллер обновляет
                     _controller.UpdateGame(
                         selectedGame.Id,
                         textBox_Title.Text,
@@ -140,7 +149,7 @@ namespace aislab_1
                         (Genre)comboBox_Genre.SelectedItem
                     );
 
-                    // 2. View обновляется
+                    // View обновляется
                     RefreshData();
                     MessageBox.Show("Игра обновлена!");
                 }
@@ -164,10 +173,10 @@ namespace aislab_1
                 {
                     try
                     {
-                        // 1. Контроллер удаляет
+                        // Контроллер удаляет
                         _controller.DeleteGame(selectedGame.Id);
 
-                        // 2. View обновляется
+                        // View обновляется
                         RefreshData();
                         ClearInputFields();
                     }

@@ -8,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace Controller
 {
+
+    /// <summary>
+    /// Контроллер приложения (Controller).
+    /// Отвечает за обработку действий пользователя и передачу команд в слой бизнес-логики.
+    /// В данной архитектуре Контроллер "тонкий": он не управляет отображением и не хранит состояние.
+    /// </summary>
     public class GameController
     {
         private readonly IGameService _service;
