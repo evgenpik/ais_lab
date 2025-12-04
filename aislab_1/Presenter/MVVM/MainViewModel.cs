@@ -214,7 +214,7 @@ namespace Presenter.MVVM
 
         private void SearchByPlatformName(object parameter)
         {
-            //throw new Exception($"ТЕСТ! Ищем: '{PlatformSearchText}'");
+            
 
             var found = _gameService.FindGamesByPlatformName(PlatformSearchText);
             OnGamesLoaded(this, found);

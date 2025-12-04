@@ -10,12 +10,12 @@
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <!-- Таблица (слева) -->
+            <!-- Таблица -->
             <ColumnDefinition Width="350"/>
-            <!-- Панель (справа) -->
+            <!-- Панель -->
         </Grid.ColumnDefinitions>
 
-        <!-- === ТАБЛИЦА ИГР === -->
+        <!-- ТАБЛИЦА ИГР -->
         <DataGrid Grid.Column="0" Margin="0,0,10,0"
                   ItemsSource="{Binding Games}"
                   SelectedItem="{Binding SelectedGame}"
@@ -35,7 +35,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- === ПАНЕЛЬ УПРАВЛЕНИЯ === -->
+        <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
         <StackPanel Grid.Column="1">
 
             <!-- Поля ввода -->
@@ -107,7 +107,7 @@
                         <Button Grid.Column="2" Content="Удалить" Command="{Binding DeleteGameCommand}" Margin="2" Height="25"/>
                     </Grid>
 
-                    <!-- Дополнительные функции (Скриншот) -->
+                    <!-- Дополнительные функции-->
                     <Grid Margin="0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
