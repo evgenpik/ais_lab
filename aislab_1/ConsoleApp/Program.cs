@@ -218,6 +218,11 @@ namespace ConsoleApp
                             Console.WriteLine("\n---Поиск игр по названию платформы---");
                             Console.Write("Введите название платформы для поиска / (или введите 'exit' для выхода в главное меню).");
                             string platformNameSearch = GetValidString("> ");
+
+                            if (platformNameSearch.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                            {
+                                break; 
+                            }
                             var foundGames = service.FindGamesByPlatformName(platformNameSearch);
                             if (!foundGames.Any())
                             {

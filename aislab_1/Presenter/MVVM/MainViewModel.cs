@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+
 namespace Presenter.MVVM
 {
     public class MainViewModel: ViewModelBase
@@ -44,6 +45,10 @@ namespace Presenter.MVVM
         private string _newPlatformName;
         public string NewPlatformName { get => _newPlatformName; set => Set(ref _newPlatformName, value); }
 
+        public string _platformSearchText;
+
+        public string PlatformSearchText { get => _platformSearchText; set => Set(ref _platformSearchText, value); }    
+
         //свойство выбранной игры, при изменении которого заполняются поля ввода
         private GameDTO _selectedGame;
 
@@ -79,6 +84,11 @@ namespace Presenter.MVVM
         public ICommand ClearInputsCommand { get; } // Кнопка "Сбросить"
         public ICommand AddPlatformCommand { get; }
         public ICommand RefreshCommand { get; }
+
+        public ICommand FilterByPlatformCommand { get; }
+        public ICommand GroupByGenreCommand { get; }
+        public ICommand SearchPlatformCommand { get; }
+
         #endregion
 
         public MainViewModel(IGameService service, ViewManager viewManager)
@@ -94,8 +104,15 @@ namespace Presenter.MVVM
             AddPlatformCommand = new RelayCommand(AddPlatform, _ => !string.IsNullOrWhiteSpace(NewPlatformName));
             RefreshCommand = new RelayCommand(_ => LoadData());
 
+            FilterByPlatformCommand = new RelayCommand(FilterByPlatform);
+            GroupByGenreCommand = new RelayCommand(GroupByGenre);
+            SearchPlatformCommand = new RelayCommand(SearchByPlatformName);
+
+
             _gameService.GamesLoaded += OnGamesLoaded;
             _gameService.PlatformsLoaded += OnPlatformsLoaded;
+
+            
 
             LoadData();
         }
@@ -108,8 +125,11 @@ namespace Presenter.MVVM
         private void LoadData()
         {         
             //получаем данные из сервиса, вернется model и события GamesLoaded/PlatformsLoaded сработают внутри сервиса и вызовут методы для обновления
-            _gameService.GetAllGames();
-            _gameService.GetAllPlatforms();
+            var games = _gameService.GetAllGames();
+            OnGamesLoaded(this, games);
+
+            var platforms = _gameService.GetAllPlatforms();
+            OnPlatformsLoaded(this, platforms);
         }
 
         /// <summary>
@@ -177,6 +197,33 @@ namespace Presenter.MVVM
             SelectedGame = null; 
         }
 
+        private void FilterByPlatform(object parameter)
+        {
+            
+            var filtered = _gameService.GetGamesByPlatform(SelectedInputPlatformId);
+            OnGamesLoaded(this, filtered);
+        }
+
+        private void GroupByGenre(object parameter)
+        {
+            var grouped = _gameService.GetGamesGroupedByGenre()
+                                      .SelectMany(g => g) //разгруппируем обратно в IEnumerable<Game>
+                                      .ToList();
+            OnGamesLoaded(this, grouped);
+        }
+
+        private void SearchByPlatformName(object parameter)
+        {
+            //throw new Exception($"ТЕСТ! Ищем: '{PlatformSearchText}'");
+
+            var found = _gameService.FindGamesByPlatformName(PlatformSearchText);
+            OnGamesLoaded(this, found);
+        }
+
+
+
+
+
         #region обработчики событий сервиса
         private void OnGamesLoaded(object sender, IEnumerable<Game> games)
         {
@@ -190,6 +237,8 @@ namespace Presenter.MVVM
 
         private void OnPlatformsLoaded(object sender, IEnumerable<Platform> platforms)
         {
+            SelectedInputPlatformId = Guid.Empty;
+
             Platforms.Clear();
             foreach (var platform in platforms)
             {

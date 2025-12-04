@@ -24,6 +24,9 @@ namespace DataAccessLayer
         {
             using (var context = new AppDbContext())
             {
+                if (string.IsNullOrWhiteSpace(platformName))
+                    return new List<Game>();
+
                 return context.Games
                     .Include(g => g.Platform)
                     .Where(g => g.Platform.Name.Equals(platformName, System.StringComparison.OrdinalIgnoreCase))
